@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    .input-div {
+      height: 200px;
+      border: 2px dotted black;
+      background-color: white;
+      position: relative;
+    }
+
+    .input-div p {
+      margin: 0;
+    }
+
+    .file {
+      width: 100%;
+      height: 100%;
+      position: absolute;
+      opacity: 0;
+      cursor: pointer;
+    }
+
+    .image {
+      height: 150px;
+      border-radius: 5px;
+      box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      position: relative;
+      margin-right: 15px;
+      margin-bottom: 15px;
+    }
+
+    .image img {
+      height: 100%;
+      width: 100%;
+    }
+
+    .image span {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      cursor: pointer;
+      font-size: 26px;
+      color: white;
+      background-color: rgba(0, 0, 0, 0.7);
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .image span:hover {
+      opacity: 0.8;
+    }
+
+    .preview-box {
+      border: 2px dotted black;
+      padding: 10px;
+      background-color: white;
+    }
+  </style>
+</head>
+<body>
+  <%- include("templates/headerafterlogin") %>
+  <div class="container mt-5">
+    <div class="row">
+      <div class="col">
+        <h2 class="mb-4">Upload Images</h2>
+        <div class="server-message mb-3"></div>
+        
+        <!-- Title and Date Inputs -->
+        <div class="form-group">
+          <label for="title">Title</label>
+          <input type="text" id="title" name="title" class="form-control" required>
+        </div>
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input type="date" id="date" name="date" class="form-control" required>
+        </div>
+
+        <div class="input-div d-flex justify-content-center align-items-center text-center">
+          <p>Drag & drop photos here or <span class="text-primary font-weight-bold">Browse</span></p>
+          <input type="file" class="file" multiple="multiple" accept="image/jpeg, image/png, image/jpg"/>
+        </div>
+        <form id="preview" class="mt-4">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h3>Preview</h3>
+          </div>
+          <div class="preview-box">
+            <div class="queued-div d-flex flex-wrap"></div>
+          </div>
+          <button type="submit" class="btn btn-primary mt-3">Upload</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  <script>
+    let queuedImagesArray = [],
+        queuedForm = document.querySelector("#preview"),
+        queuedDiv = document.querySelector('.queued-div'),
+        inputDiv = document.querySelector('.input-div'),
+        input = document.querySelector('.input-div input'),
+        serverMessage = document.querySelector('.server-message');
+
+    function displayQueuedImages() {
+      let images = "";
+      queuedImagesArray.forEach((image, index) => {
+        images += `<div class="image">
+                    <img src="${URL.createObjectURL(image)}" alt="image">
+                    <span onclick="deleteQueuedImage(${index})">&times;</span>
+                  </div>`;
+      });
+      queuedDiv.innerHTML = images;
+    }
+
+    function deleteQueuedImage(index) {
+      queuedImagesArray.splice(index, 1);
+      displayQueuedImages();
+    }
+
+    input.addEventListener("change", () => {
+      const files = input.files;
+      for (let i = 0; i < files.length; i++) {
+        queuedImagesArray.push(files[i]);
+      }
+      displayQueuedImages();
+    });
+
+    inputDiv.addEventListener("dragover", (e) => {
+      e.preventDefault();
+    });
+
+    inputDiv.addEventListener("drop", (e) => {
+      e.preventDefault();
+      const files = e.dataTransfer.files;
+      for (let i = 0; i < files.length; i++) {
+        if (!files[i].type.match("image.*")) continue;
+        
+        if (queuedImagesArray.every(image => image.name !== files[i].name)) {
+          queuedImagesArray.push(files[i]);
+        }
+      }
+      displayQueuedImages();
+    });
+
+    queuedForm.addEventListener("submit", (e) => {
+      e.preventDefault();
+      const formData = new FormData();
+      
+      // Append title and date to formData
+      const title = document.getElementById('title').value;
+      const date = document.getElementById('date').value;
+      formData.append('title', title);
+      formData.append('date', date);
+
+      // Append images to formData
+      queuedImagesArray.forEach(image => formData.append('images', image));
+
+      // Submit formData
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.json())
+      .then(data => {
+        serverMessage.textContent = data.message;
+        serverMessage.classList.add('alert', 'alert-success');
+        // Clear the form and preview
+        queuedImagesArray = [];
+        displayQueuedImages();
+      })
+      .catch(error => {
+        serverMessage.textContent = 'Upload failed';
+        serverMessage.classList.add('alert', 'alert-danger');
+      });
+    });
+  </script>
+</body>
+</html>
