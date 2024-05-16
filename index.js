@@ -96,7 +96,7 @@ app.use((req, res, next) => {
   
   // app.use('/', sessionValidation);
   app.get("/", (req, res) => {
-    res.render("hero");
+    res.render("index");
    
   });
 

@@ -11,9 +11,18 @@ html {
     /* background-color: #5c6bc0;
      */
      /* background-color: #e2e2e2; */
-     background-color: #eee;
+     /* background-color: #eee; */
      /* background: url(hero_background.jpeg); */
+     
 }
+
+#myVideo {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    min-width: 50%; 
+    min-height: 50%;
+  }
 
 #hero {
     /* background: url(hero_background.jpeg); */
