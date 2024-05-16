@@ -156,6 +156,10 @@ app.post("/submitUser", async (req, res) => {
   return res.redirect("/members");
 });
 
+app.get("/loginSignUp", (req, res) => {
+  res.render("loginSignUp");
+ })
+
 app.post("/loggingin", async (req, res) => {
   var email = req.body.email;
   var password = req.body.password;
@@ -221,6 +225,10 @@ app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
 });
+
+app.get("/forgotPassword", (req, res) => {
+  res.render("forgotPassword");
+ }); 
 
 app.get("*", (req, res) => {
   res.status(404);
