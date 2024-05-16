@@ -1,149 +1,236 @@
-require("./utils.js");
-
 require("dotenv").config();
 const express = require("express");
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
-const multer = require("multer");
-const path = require("path");
-const fs = require("fs");
-
-const port = process.env.PORT || 3000;
-
-const app = express();
-
+const bcrypt = require("bcrypt");
+const saltRounds = 12;
+const cloudinary = require('cloudinary').v2;
+const multer = require('multer');
+const { CloudinaryStorage } = require('multer-storage-cloudinary');
+const MongoClient = require("mongodb").MongoClient;
 const Joi = require("joi");
 
-const expireTime = 24 * 60 * 60 * 1000; //expires after 1 day  (hours * minutes * seconds * millis)
+const port = process.env.PORT || 3000;
+const app = express();
 
-/* secret information section */
+app.use(express.static(__dirname + '/public'));
+app.use(express.urlencoded({ extended: false }));
+
+const expireTime = 60 * 60 * 1000;
+
+/* Secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
 const mongodb_user = process.env.MONGODB_USER;
 const mongodb_password = process.env.MONGODB_PASSWORD;
 const mongodb_database = process.env.MONGODB_DATABASE;
 const mongodb_session_secret = process.env.MONGODB_SESSION_SECRET;
+const node_session_secret = process.env.MONGODB_SESSION_SECRET;
 
-const node_session_secret = process.env.NODE_SESSION_SECRET;
-/* END secret section */
+cloudinary.config({
+  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+  api_key: process.env.CLOUDINARY_CLOUD_KEY,
+  api_secret: process.env.CLOUDINARY_CLOUD_SECRET,
+});
 
-var { database } = require("./databaseConnection");
+// code referenced from https://www.youtube.com/watch?v=3Gj_mL9JJ6k
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: {
+    folder: 'uploads',
+    allowedFormats: ['jpg', 'png', 'jpeg'],
+  },
+});
+const upload = multer({ storage: storage });
 
-app.set("view engine", "ejs");
+const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`;
+var database = new MongoClient(atlasURI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true,
+});
+database.connect((err) => {
+  if (err) throw err;
+  console.log("Connected to MongoDB!");
+});
 
-app.use(express.urlencoded({ extended: false }));
-app.use(express.json());
-
-var mongoStore = MongoStore.create({
-  mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`,
+const mongoStore = MongoStore.create({
+  mongoUrl: atlasURI,
   crypto: {
     secret: mongodb_session_secret,
   },
 });
 
+app.set('view engine', 'ejs');
+
+const userCollection = database.db(mongodb_database).collection("users");
+
 app.use(
   session({
     secret: node_session_secret,
-    store: mongoStore, //default is memory store
+    store: mongoStore,
     saveUninitialized: false,
     resave: true,
   })
 );
 
-// Middleware to pass name to response locals
-app.use((req, res, next) => {
-  res.locals.name = req.session.name;
-  next();
-});
-
 function isValidSession(req) {
-  if (req.session.authenticated) {
-    return true;
-  }
-  return false;
+  return req.session.authenticated;
 }
 
 function sessionValidation(req, res, next) {
   if (isValidSession(req)) {
     next();
   } else {
-    res.redirect("/login");
+    res.redirect('/');
   }
-}
-
-function isAdmin(req) {
-  if (req.session.user_type == "admin") {
-    return true;
-  }
-  return false;
 }
 
 function adminAuthorization(req, res, next) {
-  if (!isAdmin(req)) {
-    res.status(403);
-    res.render("errorMessage", { error: "Account not Authorized", navLinks: navLinks, currentURL: null });
-  } else {
+  if (req.session.user_type === 'admin') {
     next();
+  } else {
+    res.status(403);
+    res.render("errorMessage", { error: "Not Authorized" });
   }
 }
 
-database.connect((err, client) => {
-  if (err) {
-    console.error('Failed to connect to MongoDB', err);
-    process.exit(1);
-  }
-  console.log('Connected to MongoDB');
-  
-  const db = client.db('timeCapsule');
-  const imageCollection = db.collection('images');
+app.get("/", (req, res) => {
+  res.render("index");
+});
 
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + path.extname(file.originalname));
-    }
-  });
+app.get("/nosql-injection", async (req, res) => {
+  const username = req.query.user;
 
-  const upload = multer({ storage: storage });
-
-  // Ensure the uploads directory exists
-  const uploadsDir = path.join(__dirname, 'uploads');
-  if (!fs.existsSync(uploadsDir)){
-    fs.mkdirSync(uploadsDir);
+  if (!username) {
+    res.send(
+      `<h3>No user provided - try /nosql-injection?user=name or /nosql-injection?user[$ne]=name</h3>`
+    );
+    return;
   }
 
-  // Image upload route
-  app.post('/upload', upload.array('images', 12), (req, res) => {
-    const { title, date } = req.body;
-    const imageFiles = req.files.map(file => ({
-      title,
-      date: new Date(date),
-      filename: file.filename,
-      path: file.path
-    }));
+  const schema = Joi.string().max(20).required();
+  const validationResult = schema.validate(username);
 
-    imageCollection.insertMany(imageFiles)
-      .then(result => {
-        res.json({
-          message: 'Files uploaded successfully',
-          files: imageFiles
-        });
-      })
-      .catch(err => {
-        res.status(500).json({
-          message: 'Failed to upload files',
-          error: err
-        });
-      });
+  if (validationResult.error != null) {
+    res.send("<h1 style='color:darkred;'>A NoSQL injection attack was detected!!</h1>");
+    return;
+  }
+
+  const result = await userCollection
+    .find({ username: username })
+    .project({ username: 1, password: 1, _id: 1 })
+    .toArray();
+
+  res.send(`<h1>Hello ${username}</h1>`);
+});
+
+app.post("/submitUser", async (req, res) => {
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password) {
+    return res.send("Name, email, and password are required. <a href='/'>Try again</a>");
+  }
+
+  const schema = Joi.object({
+    name: Joi.string().max(30).required(),
+    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } }).required(),
+    password: Joi.string().min(3).max(50).required(),
   });
 
-  // Serve the upload form
-  app.get("/", (req, res) => {
-    res.sendFile(path.join(__dirname, 'createCapsule.ejs'));
-  });
+  const { error } = schema.validate({ name, email, password });
 
-  app.listen(port, () => {
-    console.log("Node application listening on port " + port);
-  });
+  if (error) {
+    return res.render("index", { error: error.details[0].message });
+  }
+
+  const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+  await userCollection.insertOne({ name, email, password: hashedPassword });
+
+  req.session.authenticated = true;
+  req.session.email = email;
+  req.session.name = name;
+  req.session.cookie.maxAge = expireTime;
+
+  return res.redirect("/members");
+});
+
+app.post("/loggingin", async (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  const schema = Joi.string().email().required();
+  const validationResult = schema.validate(email);
+  if (validationResult.error != null) {
+    return res.send(`Invalid email/password combination. <a href="/">Try again</a>`);
+  }
+
+  const result = await userCollection
+    .find({ email: email })
+    .project({ email: 1, username: 1, password: 1, _id: 1 })
+    .toArray();
+
+  if (result.length != 1) {
+    return res.send(`Invalid email/password combination. <a href="/">Try again</a>`);
+  }
+
+  if (await bcrypt.compare(password, result[0].password)) {
+    req.session.authenticated = true;
+    req.session.email = result[0].email;
+    req.session.cookie.maxAge = expireTime;
+    req.session.user_id = result[0]._id;
+    return res.redirect("/loggedin");
+  } else {
+    return res.send(`Invalid email/password combination. <a href="/">Try again</a>`);
+  }
+});
+
+app.get("/loggedin", async (req, res) => {
+  if (!req.session.authenticated) {
+    return res.redirect("/");
+  }
+
+  res.redirect("/members");
+});
+
+app.get("/logout", (req, res) => {
+  req.session.destroy();
+  res.redirect("/");
+});
+
+app.get('/createCapsule', sessionValidation, (req, res) => {
+  res.render('createCapsule');
+});
+
+
+// code referenced from https://www.youtube.com/watch?v=3Gj_mL9JJ6k
+//  handle image uploads
+app.post('/upload', upload.array('images'), async (req, res) => {
+  try {
+    const { title, date } = req.body;   
+    const user_id = req.session.user_id;   
+    const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
+    const newCapsule = {
+      title: title,  // Title of the capsule
+      date: date,    // Date associated with the capsule
+      images: images,  // Array of image paths
+      user_id: user_id,  // ID of the user who uploaded the capsule
+    };
+    const capsuleCollection = database.db(mongodb_database).collection("capsule");
+    await capsuleCollection.insertOne(newCapsule);
+
+    // Send a success response with a message
+    res.json({ message: "Upload successful" });
+  } catch (error) {
+    res.status(500).json({ message: "Upload failed" });
+  }
+});
+
+
+app.get("*", (req, res) => {
+  res.status(404);
+  res.send("Page not found - 404");
+});
+
+app.listen(port, () => {
+  console.log("Node application listening on port " + port);
 });

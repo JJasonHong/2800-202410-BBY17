@@ -1,12 +1,15 @@
+<!-- Referenced code from https://www.youtube.com/watch?v=EaBSeNSc-2c -->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <title>Create Capsule</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
+    /* Styles for the input div and preview images */
     .input-div {
       height: 200px;
       border: 2px dotted black;
@@ -68,14 +71,16 @@
     }
   </style>
 </head>
+
 <body>
-  <%- include("templates/headerafterlogin") %>
+  <%- include("templates/headerbeforelogin.html") %>
   <div class="container mt-5">
     <div class="row">
       <div class="col">
         <h2 class="mb-4">Upload Images</h2>
+        <!-- Server message area to show upload success or failure -->
         <div class="server-message mb-3"></div>
-        
+
         <!-- Title and Date Inputs -->
         <div class="form-group">
           <label for="title">Title</label>
@@ -86,11 +91,14 @@
           <input type="date" id="date" name="date" class="form-control" required>
         </div>
 
+        <!-- Drag & Drop / Browse File Input -->
         <div class="input-div d-flex justify-content-center align-items-center text-center">
           <p>Drag & drop photos here or <span class="text-primary font-weight-bold">Browse</span></p>
-          <input type="file" class="file" multiple="multiple" accept="image/jpeg, image/png, image/jpg"/>
+          <input type="file" class="file" multiple="multiple" accept="image/jpeg, image/png, image/jpg" />
         </div>
-        <form id="preview" class="mt-4">
+
+        <!-- Upload Form -->
+        <form id="uploadForm" class="mt-4" enctype="multipart/form-data" action="/upload" method="POST">
           <div class="d-flex justify-content-between align-items-center mb-2">
             <h3>Preview</h3>
           </div>
@@ -102,14 +110,16 @@
       </div>
     </div>
   </div>
-  <script>
-    let queuedImagesArray = [],
-        queuedForm = document.querySelector("#preview"),
-        queuedDiv = document.querySelector('.queued-div'),
-        inputDiv = document.querySelector('.input-div'),
-        input = document.querySelector('.input-div input'),
-        serverMessage = document.querySelector('.server-message');
 
+  <script>
+    // Store selected images and DOM elements
+    let queuedImagesArray = [],
+      queuedDiv = document.querySelector('.queued-div'),
+      inputDiv = document.querySelector('.input-div'),
+      input = document.querySelector('.input-div input'),
+      serverMessage = document.querySelector('.server-message');
+
+    // Function to display the selected images in the preview area
     function displayQueuedImages() {
       let images = "";
       queuedImagesArray.forEach((image, index) => {
@@ -121,11 +131,13 @@
       queuedDiv.innerHTML = images;
     }
 
+    // Function to remove an image from the queue
     function deleteQueuedImage(index) {
       queuedImagesArray.splice(index, 1);
       displayQueuedImages();
     }
 
+    // Event listener for file input change (when files are selected via browse)
     input.addEventListener("change", () => {
       const files = input.files;
       for (let i = 0; i < files.length; i++) {
@@ -134,54 +146,52 @@
       displayQueuedImages();
     });
 
+    // Event listeners for drag & drop functionality
     inputDiv.addEventListener("dragover", (e) => {
       e.preventDefault();
     });
 
     inputDiv.addEventListener("drop", (e) => {
-      e.preventDefault();
-      const files = e.dataTransfer.files;
-      for (let i = 0; i < files.length; i++) {
-        if (!files[i].type.match("image.*")) continue;
-        
+      e.preventDefault(); // Prevent open the file in the browser
+      const files = e.dataTransfer.files; // Get the files that were dropped into the inputDiv
+      for (let i = 0; i < files.length; i++) { // Loop through each dropped file
+        if (!files[i].type.match("image.*")) continue; // If the file is not an image, skip it and continue to the next file
+        // Check if the file name is not already in the queuedImagesArray
         if (queuedImagesArray.every(image => image.name !== files[i].name)) {
-          queuedImagesArray.push(files[i]);
+          queuedImagesArray.push(files[i]); // If the file is unique, add it to the queuedImagesArray
         }
       }
       displayQueuedImages();
     });
 
-    queuedForm.addEventListener("submit", (e) => {
-      e.preventDefault();
+    // Event listener for form submission
+    document.getElementById("uploadForm").addEventListener("submit", (e) => {
+      e.preventDefault(); // Prevent default form submission
       const formData = new FormData();
-      
-      // Append title and date to formData
-      const title = document.getElementById('title').value;
-      const date = document.getElementById('date').value;
-      formData.append('title', title);
-      formData.append('date', date);
-
-      // Append images to formData
+      formData.append('title', document.getElementById('title').value);
+      formData.append('date', document.getElementById('date').value);
       queuedImagesArray.forEach(image => formData.append('images', image));
 
-      // Submit formData
+      // Fetch API to send the form data
       fetch('/upload', {
         method: 'POST',
         body: formData
       })
-      .then(response => response.json())
-      .then(data => {
-        serverMessage.textContent = data.message;
-        serverMessage.classList.add('alert', 'alert-success');
-        // Clear the form and preview
-        queuedImagesArray = [];
-        displayQueuedImages();
-      })
-      .catch(error => {
-        serverMessage.textContent = 'Upload failed';
-        serverMessage.classList.add('alert', 'alert-danger');
-      });
+        .then(response => response.json())
+        .then(data => {
+          serverMessage.textContent = data.message;
+          serverMessage.classList.add('alert', 'alert-success');
+          queuedImagesArray = [];
+          displayQueuedImages();
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          // Display error message
+          serverMessage.textContent = data.message;
+          serverMessage.classList.add('alert', 'alert-danger');
+        });
     });
   </script>
 </body>
+
 </html>
