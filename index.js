@@ -98,6 +98,11 @@ function adminAuthorization(req, res, next) {
   }
 }
 
+app.use((req, res, next) => {
+  res.locals.isLoggedIn = req.session.authenticated;
+  next();
+});
+
 app.get("/", (req, res) => {
   res.render("index");
 });
