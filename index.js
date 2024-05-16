@@ -159,6 +159,10 @@ app.post("/submitUser", async (req, res) => {
   return res.redirect("/members");
 });
 
+app.get("/loginSignUp", (req, res) => {
+  res.render("loginSignUp");
+ })
+
 app.post("/loggingin", async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -189,6 +193,10 @@ app.post("/loggingin", async (req, res) => {
   }
 });
 
+app.get("/loginsignup", (req, res) => {
+  res.render("loginsignup");
+ });
+
 app.get("/loggedin", async (req, res) => {
   if (!req.session.authenticated) {
     return res.redirect("/");
@@ -202,6 +210,7 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
+<<<<<<< HEAD
 app.get('/createCapsule', sessionValidation, (req, res) => {
   res.render('createCapsule');
 });
@@ -230,6 +239,11 @@ app.post('/upload', upload.array('images'), async (req, res) => {
   }
 });
 
+=======
+app.get("/forgotPassword", (req, res) => {
+  res.render("forgotPassword");
+ }); 
+>>>>>>> login/signup
 
 app.get("*", (req, res) => {
   res.status(404);
