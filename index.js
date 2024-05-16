@@ -210,7 +210,6 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
-<<<<<<< HEAD
 app.get('/createCapsule', sessionValidation, (req, res) => {
   res.render('createCapsule');
 });
@@ -239,11 +238,9 @@ app.post('/upload', upload.array('images'), async (req, res) => {
   }
 });
 
-=======
 app.get("/forgotPassword", (req, res) => {
   res.render("forgotPassword");
  }); 
->>>>>>> login/signup
 
 app.get("*", (req, res) => {
   res.status(404);
