@@ -209,6 +209,10 @@ app.post("/loggingin", async (req, res) => {
   }
 });
 
+app.get("/loginsignup", (req, res) => {
+  res.render("loginsignup");
+ });
+
 app.get("/loggedin", async (req, res) => {
   if (!req.session.authenticated) {
     res.redirect("/");
