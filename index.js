@@ -9,7 +9,8 @@ const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const MongoClient = require("mongodb").MongoClient;
 const Joi = require("joi");
-
+const path = require('path');
+const favicon = require('serve-favicon');
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -17,6 +18,10 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({ extended: false }));
 
 const expireTime = 60 * 60 * 1000;
+app.set("view engine", "ejs");
+
+
+
 
 /* Secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
