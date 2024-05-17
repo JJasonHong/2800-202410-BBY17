@@ -1,17 +1,233 @@
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
+
+:root {
+    --overlay-color: #9999ff;
+}
+
+*{
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.showcase {
+    position: absolute;
+    right: 0;
+    width: 100%;
+    min-height: 100vh;
+    padding: 100px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #111;
+    color: #fff;
+    z-index: 2;
+    transition: 0.8s;
+}
+
+.showcase.active {
+    right: 300px;
+
+}
+
+.showcase header {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    padding: 40px 100px;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.logo {
+    text-transform: uppercase;
+    cursor: pointer;
+}
+.toggle {
+    position: relative;
+    width: 60px;
+    height: 60px;
+    background: url('hamburgerwhite.png');
+    background-size: 30px;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+}
+
+.toggle.active {
+    background: url('closewhite.png');
+    background-size: 25px;
+    background-repeat: no-repeat;
+    background-position: center;
+}
+
+.showcase video {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    opacity: 0.8;
+}
+
+/* #ffcfee  #ffe505*/
+.overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: #ffcfee;
+    mix-blend-mode: overlay;
+}
+
+.text {
+    position: relative;
+    z-index: 10;
+}
+
+.text h2 {
+    font-size: 5em;
+    font-weight: 800;
+    line-height: 1em;
+    text-transform: uppercase;
+}
+
+.text h3 {
+    font-size: 4em;
+    font-weight: 700;
+    line-height: 1em;
+    text-transform: uppercase;
+}
+
+.text p {
+    font-size: 1.1em;
+    margin: 2px 0;
+    font-weight: 400;
+    max-width: 700px;
+}
+
+.text a {
+    /* display: inline-block; */
+    font-size: 1em;
+    /* background: white; */
+    /* padding: 10px 30px; */
+    color: #111;
+    margin-top: 10px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
+
+.text a:hover {
+    letter-spacing: 6px;
+}
+
+.social {
+    position: absolute;
+    bottom: 20px;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.social li {
+    list-style: none;
+}
+
+.social li a {
+    display: inline-block;
+    filter: invert(1);
+    margin-right: 20px;
+    transform: scale(0.8);
+    transition: 0.5s;
+}
+
+.social li a:hover {
+    transform: scale(1) translateY(-15px);
+}
+
+.menu {
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 300px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.menu ul {
+    position: relative;
+    list-style: none;
+}
+
+.menu ul li a {
+    text-decoration: none;
+    font-size: 24px;
+    color: #111;
+}
+
+/* #ffcfee ffe505 #9999ff */
+.menu ul li a:hover {
+    color: var(--overlay-color);
+}
+
+@media(max-width: 798px) {
+    .showcase,
+    .showcase header {
+        padding: 40px;
+    }
+
+    .text h2 {
+        font-size: 3em;
+    }
+
+    .text h3 {
+        font-size: 2em;
+    }
+}
+</style>
+
 <%- include("templates/header") %> 
-<div class="container col-xxl-8 px-4 py-5" id="hero">
-  <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
-    <div class="col-10 col-sm-8 col-lg-6">
-      <img src="/hero_background.jpeg" class="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" loading="lazy">
-    </div>
-    <div class="col-lg-6">
-      <h1 class="display-5 fw-bold text-body-emphasis lh-1 mb-3">Memory Lane</h1>
-      <p class="lead">Capture, organize, and share the precious moments of your life with MemoryLane. Our platform allows you to seamlessly store text, images, and videos all in one place, making it easier than ever to keep your cherished memories together and share them with your loved ones. Say goodbye to the hassle of scattered files and experience the convenience of having everything in one organized folder. Start creating and preserving your life's important moments with MemoryLane today.</p>
-      <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-        
-        <a href="/loginsignup"></a><button type="button" class="btn btn-primary btn-lg px-4 me-md-2">Enter</button></a>
-      </div>
-    </div>
+<section class="showcase">
+  <header>
+    <h2 class="logo">Time Capsule</h2>
+    <div class="toggle"></div>
+  </header>
+  <video src="landing.mp4" muted loop autoplay></video>
+
+  <div class="overlay"></div>
+
+  <div class="text">
+    <h2>Capture Today,</h2>
+    <h3>Relive Tomorrow.</h3>
+    <p>Where moments unite seamlessly stored, shared, and cherished. Organize life’s treasures effortlessly! 
+    </p>
+    <button class="btn btn-light rounded-pill px-3" type="button"><a href="/loginSignUp">Explore</a></button>
+    
   </div>
+  <ul class="social">
+    <li><a href=""><img src="like.png" width="50px" alt=""></a></li>
+    <li><a href=""><img src="bird.png" width="50px" alt=""></a></li>
+    <li><a href=""><img src="hourglass.png" width="50px" alt=""></a></li>
+  </ul>
+</section>
+
+<div class="menu">
+  <ul>
+    <li><a href="#">home</a></li>
+    <li><a href="#">signup</a></li>
+    <li><a href="#">login</a></li>
+    <li><a href="#">member</a></li>
+    <li><a href="#">media</a></li>
+  </ul>
 </div>
 <%- include("templates/footer") %> 
