@@ -7,4 +7,4 @@ Team Members:
 - Anthony Baek
 - Pranjal Sharma
 ## More details to come
-TBA
+TBA 

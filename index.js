@@ -4,6 +4,9 @@ const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
+
+const nodemailer = require('nodemailer');
+
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
@@ -18,10 +21,6 @@ app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({ extended: false }));
 
 const expireTime = 60 * 60 * 1000;
-app.set("view engine", "ejs");
-
-
-
 
 /* Secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -67,6 +66,9 @@ const mongoStore = MongoStore.create({
 app.set('view engine', 'ejs');
 
 const userCollection = database.db(mongodb_database).collection("users");
+const capsuleCollection = database.db(mongodb_database).collection("capsule");
+
+const ObjectId = require('mongodb').ObjectId;
 
 app.use(
   session({
@@ -78,13 +80,16 @@ app.use(
 );
 
 function isValidSession(req) {
-  return req.session.authenticated;
+  if (req.session.authenticated) {
+    return true;
+  }
+  return false;
 }
-
 function sessionValidation(req, res, next) {
   if (isValidSession(req)) {
     next();
-  } else {
+  }
+  else {
     res.redirect('/');
   }
 }
@@ -166,7 +171,7 @@ app.post("/submitUser", async (req, res) => {
 
 app.get("/loginSignUp", (req, res) => {
   res.render("loginSignUp");
- })
+})
 
 app.post("/loggingin", async (req, res) => {
   const email = req.body.email;
@@ -200,7 +205,7 @@ app.post("/loggingin", async (req, res) => {
 
 app.get("/loginsignup", (req, res) => {
   res.render("loginsignup");
- });
+});
 
 app.get("/loggedin", async (req, res) => {
   if (!req.session.authenticated) {
@@ -208,6 +213,16 @@ app.get("/loggedin", async (req, res) => {
   }
 
   res.redirect("/members");
+});
+
+app.get('/members', sessionValidation, (req, res) => {
+  // Retrieve the necessary data
+  const authenticated = req.session.authenticated;
+  const username = req.session.name;
+  const email = req.session.email;
+
+  // Render the members page template with the data
+  res.render('members', { authenticated, username, email});
 });
 
 app.get("/logout", (req, res) => {
@@ -224,8 +239,8 @@ app.get('/createCapsule', sessionValidation, (req, res) => {
 //  handle image uploads
 app.post('/upload', upload.array('images'), async (req, res) => {
   try {
-    const { title, date } = req.body;   
-    const user_id = req.session.user_id;   
+    const { title, date } = req.body;
+    const user_id = req.session.user_id;
     const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
     const newCapsule = {
       title: title,  // Title of the capsule
@@ -233,7 +248,6 @@ app.post('/upload', upload.array('images'), async (req, res) => {
       images: images,  // Array of image paths
       user_id: user_id,  // ID of the user who uploaded the capsule
     };
-    const capsuleCollection = database.db(mongodb_database).collection("capsule");
     await capsuleCollection.insertOne(newCapsule);
 
     // Send a success response with a message
@@ -243,9 +257,162 @@ app.post('/upload', upload.array('images'), async (req, res) => {
   }
 });
 
+app.get('/openCapsule', sessionValidation, async (req, res) => {
+  //TODO: validate open date before giving user access
+  //let capsuleID = req.query.id;
+  let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
+  const result = await capsuleCollection.find({_id: capsuleID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+
+  if (result.length != 1) {
+    console.log("Capsule not found");
+    //res.redirect('?invalid=1');
+  } else {
+    res.render('openCapsule', {data: result});
+  }
+});
+
 app.get("/forgotPassword", (req, res) => {
   res.render("forgotPassword");
- }); 
+});
+
+function generateToken() {
+  const randomNum = Math.random() * 9000
+  return Math.floor(1000 + randomNum)
+};
+
+app.post("/sendOTP", async (req, res) => {
+  var email = req.body.email;
+  const schema = Joi.string().email().required();
+  const validationResult = schema.validate(email);
+  if (validationResult.error != null) {
+    console.log("hi");
+    var html = `Invalid email/password combination.
+                <a href="/">Try again</a>
+    `;
+    res.send(html);
+    return;
+  }
+
+  const result = await userCollection
+    .find({ email: email })
+    .project({ email: 1, username: 1, password: 1, _id: 1 })
+    .toArray();
+
+  console.log(result);
+  if (result.length != 1) {
+    console.log("user not found");
+    var html = `Invalid email/password combination.
+                <a href="/">Try again</a>
+    `;
+    res.send(html);
+    // res.redirect("/login");
+    return;
+  }
+  else {
+    console.log("User is present");
+    var OTP = generateToken();
+
+    await userCollection.updateOne(
+      { email: email },
+      { $set: { OTP: OTP } }
+    );
+    console.log("OTP generated ");
+
+    //send OTP to user
+    // create reusable transporter object using the default SMTP transport
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "memorylanebby@gmail.com",
+        pass: "mrnn nbqy nwby lywy",
+      },
+    });
+
+    let info = await transporter.sendMail({
+      from: '"Memory Lane" <memorylanebby@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: "OTP for login", // Subject line
+      text: `Your OTP is ${OTP}`, // plain text body
+      html: `<b>Your OTP is ${OTP}</b>`, // html body
+    });
+
+    console.log("Message sent: %s", info.messageId);
+    res.redirect("/enterOTP");
+  }
+});
+
+app.get("/enterOTP", (req, res) => {
+  res.render("enterOTP");
+});
+
+app.post("/validateOTP", async (req, res) => {
+  try {
+    const OTP = req.body.OTP;
+
+    console.log("Received OTP:", OTP);
+
+    const result = await userCollection.find({ OTP: OTP })
+      .project({ email: 1, username: 1, password: 1, _id: 1, OTP: 1 })
+      .toArray();
+
+    console.log("Query result:", result); // Log the query result
+
+    if (result) {
+      // If a user with the OTP is found, consider it as a valid OTP
+      console.log("OTP is valid");
+      res.redirect("/resetPassword/" + OTP);
+    } else {
+      // If no user with the OTP is found, consider it as invalid
+      console.log("Invalid OTP");
+      res.status(400).send("Invalid OTP");
+    }
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.error("Error validating OTP:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/resetPassword/:OTP", (req, res) => {
+  var OTP = req.params.OTP;
+  res.render("resetPassword", { OTP: OTP });
+});
+
+app.post("/resetPassword/:OTP", async (req, res) => {
+  const OTP = parseInt(req.params.OTP, 10); // Convert OTP to integer
+  const newPassword = req.body.newPassword;
+
+  try {
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+    // Update the password in the database
+    const result = await userCollection.updateOne(
+      { OTP: OTP },
+      { $set: { password: hashedPassword } }
+    );
+
+    console.log(result);
+
+    // Redirect the user to the login/signup page
+    res.redirect('/loginSignUp');
+  } catch (err) {
+    console.error("Error updating password:", err);
+
+    // Render an error page if something goes wrong
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+});
+
+
+app.use(express.static(__dirname + '/public'));
+
+app.use(express.static(__dirname + "/images"));
+
+
 
 app.get("*", (req, res) => {
   res.status(404);
