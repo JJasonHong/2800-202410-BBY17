@@ -1,17 +1,35 @@
 <%- include("templates/header") %> 
-<div class="container col-xxl-8 px-4 py-5" id="hero">
-  <div class="row flex-lg-row-reverse align-items-center g-5 py-5">
-    <div class="col-10 col-sm-8 col-lg-6">
-      <img src="/hero_background.jpeg" class="d-block mx-lg-auto img-fluid" alt="Bootstrap Themes" width="700" height="500" loading="lazy">
-    </div>
-    <div class="col-lg-6">
-      <h1 class="display-5 fw-bold text-body-emphasis lh-1 mb-3">Memory Lane</h1>
-      <p class="lead">Capture, organize, and share the precious moments of your life with MemoryLane. Our platform allows you to seamlessly store text, images, and videos all in one place, making it easier than ever to keep your cherished memories together and share them with your loved ones. Say goodbye to the hassle of scattered files and experience the convenience of having everything in one organized folder. Start creating and preserving your life's important moments with MemoryLane today.</p>
-      <div class="d-grid gap-2 d-md-flex justify-content-md-start">
-        
-        <a href="/loginsignup"></a><button type="button" class="btn btn-primary btn-lg px-4 me-md-2">Enter</button></a>
-      </div>
-    </div>
+<section class="showcase">
+  <header>
+    <h2 class="logo">Travel</h2>
+    <div class="toggle"></div>
+  </header>
+  <video src="landing.mp4" muted loop autoplay></video>
+
+  <div class="overlay"></div>
+
+  <div class="text">
+    <h2>Capture Today,</h2>
+    <h3>Relive Tomorrow.</h3>
+    <p>Where moments unite seamlessly stored, shared, and cherished. Organize life’s treasures effortlessly! 
+    </p>
+    <button class="btn btn-light rounded-pill px-3" type="button"><a href="/loginSignUp">Explore</a></button>
+    
   </div>
+  <ul class="social">
+    <li><a href=""><img src="like.png" width="50px" alt=""></a></li>
+    <li><a href=""><img src="bird.png" width="50px" alt=""></a></li>
+    <li><a href=""><img src="hourglass.png" width="50px" alt=""></a></li>
+  </ul>
+</section>
+
+<div class="menu">
+  <ul>
+    <li><a href="#">home</a></li>
+    <li><a href="#">signup</a></li>
+    <li><a href="#">login</a></li>
+    <li><a href="#">member</a></li>
+    <li><a href="#">media</a></li>
+  </ul>
 </div>
 <%- include("templates/footer") %> 
