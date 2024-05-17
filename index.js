@@ -66,6 +66,9 @@ const mongoStore = MongoStore.create({
 app.set('view engine', 'ejs');
 
 const userCollection = database.db(mongodb_database).collection("users");
+const capsuleCollection = database.db(mongodb_database).collection("capsule");
+
+const ObjectId = require('mongodb').ObjectId;
 
 app.use(
   session({
@@ -245,13 +248,26 @@ app.post('/upload', upload.array('images'), async (req, res) => {
       images: images,  // Array of image paths
       user_id: user_id,  // ID of the user who uploaded the capsule
     };
-    const capsuleCollection = database.db(mongodb_database).collection("capsule");
     await capsuleCollection.insertOne(newCapsule);
 
     // Send a success response with a message
     res.json({ message: "Upload successful" });
   } catch (error) {
     res.status(500).json({ message: "Upload failed" });
+  }
+});
+
+app.get('/openCapsule', sessionValidation, async (req, res) => {
+  //TODO: validate open date before giving user access
+  //let capsuleID = req.query.id;
+  let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
+  const result = await capsuleCollection.find({_id: capsuleID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+
+  if (result.length != 1) {
+    console.log("Capsule not found");
+    //res.redirect('?invalid=1');
+  } else {
+    res.render('openCapsule', {data: result});
   }
 });
 
