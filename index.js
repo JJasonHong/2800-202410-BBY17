@@ -215,14 +215,19 @@ app.get("/loggedin", async (req, res) => {
   res.redirect("/members");
 });
 
-app.get('/members', sessionValidation, (req, res) => {
+app.get('/members', sessionValidation, async (req, res) => {
   // Retrieve the necessary data
   const authenticated = req.session.authenticated;
   const username = req.session.name;
   const email = req.session.email;
 
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  capsules.forEach((element) => {
+    element._id = element._id.toString();
+  });
+  console.log(capsules);  
   // Render the members page template with the data
-  res.render('members', { authenticated, username, email});
+  res.render('members', { authenticated, username, email, capsules});
 });
 
 app.get("/logout", (req, res) => {
@@ -259,9 +264,11 @@ app.post('/upload', upload.array('images'), async (req, res) => {
 
 app.get('/openCapsule', sessionValidation, async (req, res) => {
   //TODO: validate open date before giving user access
-  //let capsuleID = req.query.id;
-  let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
-  const result = await capsuleCollection.find({_id: capsuleID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  let capsuleID = req.query.id;
+  //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
+  objID = new ObjectId(capsuleID);
+  const result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+
 
   if (result.length != 1) {
     console.log("Capsule not found");
@@ -327,12 +334,12 @@ app.post("/sendOTP", async (req, res) => {
       secure: true,
       auth: {
         user: "memorylanebby@gmail.com",
-        pass: "mrnn nbqy nwby lywy",
+        pass: "aqya efks nlpl ngtj",
       },
     });
 
     let info = await transporter.sendMail({
-      from: '"Memory Lane" <memorylanebby@gmail.com>', // sender address
+      from: 'memorylanebby@gmail.com', // sender address
       to: email, // list of receivers
       subject: "OTP for login", // Subject line
       text: `Your OTP is ${OTP}`, // plain text body
