@@ -6,6 +6,8 @@ const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
 
+const nodemailer = require('nodemailer');
+
 const port = process.env.PORT || 3000;
 
 const app = express();
@@ -15,7 +17,7 @@ app.use(express.static(__dirname + '/public'));
 
 const Joi = require("joi");
 
-const expireTime = 60 * 60 * 1000; 
+const expireTime = 60 * 60 * 1000;
 
 /* secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -57,16 +59,16 @@ app.use(
 
 function isValidSession(req) {
   if (req.session.authenticated) {
-      return true;
+    return true;
   }
   return false;
 }
-function sessionValidation(req,res,next) {
+function sessionValidation(req, res, next) {
   if (isValidSession(req)) {
-      next();
+    next();
   }
   else {
-      res.redirect('/');
+    res.redirect('/');
   }
 }
 
@@ -84,7 +86,7 @@ function adminAuthorization(req, res, next) {
 };
 
 app.get("/", (req, res) => {
- res.render("index");
+  res.render("index");
 });
 
 app.get("/nosql-injection", async (req, res) => {
@@ -126,7 +128,7 @@ app.get("/nosql-injection", async (req, res) => {
 
 app.post("/submitUser", async (req, res) => {
   const { name, email, password } = req.body;
-  
+
   if (!name || !email || !password) {
     console.log(name);
     return res.send("Name, email, and password are required. <a href='/'>Try again</a>");
@@ -158,7 +160,7 @@ app.post("/submitUser", async (req, res) => {
 
 app.get("/loginSignUp", (req, res) => {
   res.render("loginSignUp");
- })
+})
 
 app.post("/loggingin", async (req, res) => {
   var email = req.body.email;
@@ -211,7 +213,7 @@ app.post("/loggingin", async (req, res) => {
 
 app.get("/loginsignup", (req, res) => {
   res.render("loginsignup");
- });
+});
 
 app.get("/loggedin", async (req, res) => {
   if (!req.session.authenticated) {
@@ -232,7 +234,144 @@ app.get("/logout", (req, res) => {
 
 app.get("/forgotPassword", (req, res) => {
   res.render("forgotPassword");
- }); 
+});
+
+function generateToken() {
+  const randomNum = Math.random() * 9000
+  return Math.floor(1000 + randomNum)
+};
+
+app.post("/sendOTP", async (req, res) => {
+  var email = req.body.email;
+  const schema = Joi.string().email().required();
+  const validationResult = schema.validate(email);
+  if (validationResult.error != null) {
+    console.log("hi");
+    var html = `Invalid email/password combination.
+                <a href="/">Try again</a>
+    `;
+    res.send(html);
+    return;
+  }
+
+  const result = await userCollection
+    .find({ email: email })
+    .project({ email: 1, username: 1, password: 1, _id: 1 })
+    .toArray();
+
+  console.log(result);
+  if (result.length != 1) {
+    console.log("user not found");
+    var html = `Invalid email/password combination.
+                <a href="/">Try again</a>
+    `;
+    res.send(html);
+    // res.redirect("/login");
+    return;
+  }
+  else {
+    console.log("User is present");
+    var OTP = generateToken();
+
+    await userCollection.updateOne(
+      { email: email },
+      { $set: { OTP: OTP } }
+    );
+    console.log("OTP generated ");
+
+    //send OTP to user
+    // create reusable transporter object using the default SMTP transport
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "memorylanebby@gmail.com",
+        pass: "mrnn nbqy nwby lywy",
+      },
+    });
+    
+    let info = await transporter.sendMail({
+      from: '"Memory Lane" <memorylanebby@gmail.com>', // sender address
+      to: email, // list of receivers
+      subject: "OTP for login", // Subject line
+      text: `Your OTP is ${OTP}`, // plain text body
+      html: `<b>Your OTP is ${OTP}</b>`, // html body
+    });
+
+    console.log("Message sent: %s", info.messageId);
+    res.redirect("/enterOTP");
+  }
+});
+
+app.get("/enterOTP", (req, res) => {
+  res.render("enterOTP");
+});
+
+app.post("/validateOTP", async (req, res) => {
+  try {
+    const OTP = req.body.OTP;
+
+    console.log("Received OTP:", OTP);
+
+    const result = await userCollection.find({ OTP: OTP })
+    .project({ email: 1, username: 1, password: 1, _id: 1, OTP: 1 })
+    .toArray();
+
+    console.log("Query result:", result); // Log the query result
+
+    if (result) {
+      // If a user with the OTP is found, consider it as a valid OTP
+      console.log("OTP is valid");
+      res.redirect("/resetPassword/" + OTP);
+    } else {
+      // If no user with the OTP is found, consider it as invalid
+      console.log("Invalid OTP");
+      res.status(400).send("Invalid OTP");
+    }
+  } catch (error) {
+    // Handle any errors that occur during the process
+    console.error("Error validating OTP:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/resetPassword/:OTP", (req, res) => {
+    var OTP = req.params.OTP;
+    res.render("resetPassword", {OTP: OTP});
+  });
+
+app.post("/resetPassword/:OTP", async (req, res) => {
+  const OTP = parseInt(req.params.OTP, 10); // Convert OTP to integer
+  const newPassword = req.body.newPassword;
+
+  try {
+      // Hash the new password
+      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+
+      // Update the password in the database
+      const result = await userCollection.updateOne(
+          { OTP: OTP },
+          { $set: { password: hashedPassword } }
+      );
+
+      console.log(result);
+
+      // Redirect the user to the login/signup page
+      res.redirect('/loginSignUp');
+  } catch (err) {
+      console.error("Error updating password:", err);
+
+      // Render an error page if something goes wrong
+      res.status(500).render('error', { error: "Server error. Please try again later." });
+    }
+});
+
+
+
+
+
 
 app.get("*", (req, res) => {
   res.status(404);
