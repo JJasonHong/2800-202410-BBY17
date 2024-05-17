@@ -20,7 +20,7 @@ const app = express();
 app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({ extended: false }));
 
-const expireTime = 60 * 60 * 1000; 
+const expireTime = 60 * 60 * 1000;
 
 /* Secret information section */
 const mongodb_host = process.env.MONGODB_HOST;
@@ -78,16 +78,16 @@ app.use(
 
 function isValidSession(req) {
   if (req.session.authenticated) {
-      return true;
+    return true;
   }
   return false;
 }
-function sessionValidation(req,res,next) {
+function sessionValidation(req, res, next) {
   if (isValidSession(req)) {
-      next();
+    next();
   }
   else {
-      res.redirect('/');
+    res.redirect('/');
   }
 }
 
@@ -212,6 +212,16 @@ app.get("/loggedin", async (req, res) => {
   res.redirect("/members");
 });
 
+app.get('/members', sessionValidation, (req, res) => {
+  // Retrieve the necessary data
+  const authenticated = req.session.authenticated;
+  const username = req.session.name;
+  const email = req.session.email;
+
+  // Render the members page template with the data
+  res.render('members', { authenticated, username, email});
+});
+
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
@@ -226,8 +236,8 @@ app.get('/createCapsule', sessionValidation, (req, res) => {
 //  handle image uploads
 app.post('/upload', upload.array('images'), async (req, res) => {
   try {
-    const { title, date } = req.body;   
-    const user_id = req.session.user_id;   
+    const { title, date } = req.body;
+    const user_id = req.session.user_id;
     const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
     const newCapsule = {
       title: title,  // Title of the capsule
@@ -304,7 +314,7 @@ app.post("/sendOTP", async (req, res) => {
         pass: "mrnn nbqy nwby lywy",
       },
     });
-    
+
     let info = await transporter.sendMail({
       from: '"Memory Lane" <memorylanebby@gmail.com>', // sender address
       to: email, // list of receivers
@@ -329,8 +339,8 @@ app.post("/validateOTP", async (req, res) => {
     console.log("Received OTP:", OTP);
 
     const result = await userCollection.find({ OTP: OTP })
-    .project({ email: 1, username: 1, password: 1, _id: 1, OTP: 1 })
-    .toArray();
+      .project({ email: 1, username: 1, password: 1, _id: 1, OTP: 1 })
+      .toArray();
 
     console.log("Query result:", result); // Log the query result
 
@@ -351,38 +361,40 @@ app.post("/validateOTP", async (req, res) => {
 });
 
 app.get("/resetPassword/:OTP", (req, res) => {
-    var OTP = req.params.OTP;
-    res.render("resetPassword", {OTP: OTP});
-  });
+  var OTP = req.params.OTP;
+  res.render("resetPassword", { OTP: OTP });
+});
 
 app.post("/resetPassword/:OTP", async (req, res) => {
   const OTP = parseInt(req.params.OTP, 10); // Convert OTP to integer
   const newPassword = req.body.newPassword;
 
   try {
-      // Hash the new password
-      const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
+    // Hash the new password
+    const hashedPassword = await bcrypt.hash(newPassword, saltRounds);
 
-      // Update the password in the database
-      const result = await userCollection.updateOne(
-          { OTP: OTP },
-          { $set: { password: hashedPassword } }
-      );
+    // Update the password in the database
+    const result = await userCollection.updateOne(
+      { OTP: OTP },
+      { $set: { password: hashedPassword } }
+    );
 
-      console.log(result);
+    console.log(result);
 
-      // Redirect the user to the login/signup page
-      res.redirect('/loginSignUp');
+    // Redirect the user to the login/signup page
+    res.redirect('/loginSignUp');
   } catch (err) {
-      console.error("Error updating password:", err);
+    console.error("Error updating password:", err);
 
-      // Render an error page if something goes wrong
-      res.status(500).render('error', { error: "Server error. Please try again later." });
-    }
+    // Render an error page if something goes wrong
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
 });
 
 
+app.use(express.static(__dirname + '/public'));
 
+app.use(express.static(__dirname + "/images"));
 
 
 
