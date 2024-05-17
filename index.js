@@ -222,6 +222,16 @@ app.get("/logout", (req, res) => {
   res.redirect("/");
 });
 
+app.get('/members', (req, res) => {
+  // Retrieve the necessary data
+  // const authenticated = req.session.authenticated;
+  const username = req.session.username;
+  const email = req.session.email;
+
+  // Render the members page template with the data
+  res.render('members', { username }, { email });
+});
+
 app.get("*", (req, res) => {
   res.status(404);
   res.send("Page not found - 404");
