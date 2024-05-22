@@ -11,6 +11,7 @@ const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const MongoClient = require("mongodb").MongoClient;
+
 const Joi = require("joi");
 const path = require('path');
 const favicon = require('serve-favicon');
@@ -67,8 +68,7 @@ app.set('view engine', 'ejs');
 
 const userCollection = database.db(mongodb_database).collection("users");
 const capsuleCollection = database.db(mongodb_database).collection("capsule");
-
-const ObjectId = require('mongodb').ObjectId;
+const { ObjectId } = require('mongodb');
 
 app.use(
   session({
@@ -222,13 +222,13 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const capsules = await capsuleCollection.find({ user_id: req.session.user_id }).project({ title: 1, date: 1, images: 1, user_id: 1 }).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
-  console.log(capsules);  
+  console.log(capsules);
   // Render the members page template with the data
-  res.render('members', { authenticated, username, email, capsules});
+  res.render('members', { authenticated, username, email, capsules });
 });
 
 app.get("/logout", (req, res) => {
@@ -268,14 +268,14 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const result = await capsuleCollection.find({ _id: objID }).project({ title: 1, date: 1, images: 1, user_id: 1 }).toArray();
 
 
   if (result.length != 1) {
     console.log("Capsule not found");
     //res.redirect('?invalid=1');
   } else {
-    res.render('openCapsule', {data: result});
+    res.render('openCapsule', { data: result });
   }
 });
 
@@ -431,6 +431,107 @@ app.get('/members', (req, res) => {
   res.render('members', { username, email }); // Pass both username and email
 });
 
+
+app.get('/friends', sessionValidation, async (req, res) => {
+  try {
+    const allUsers = await userCollection.find({ _id: { $ne: ObjectId.createFromHexString(req.session.user_id) } }).toArray();
+
+    const currentUser = await userCollection.findOne({ _id: ObjectId.createFromHexString(req.session.user_id) });
+
+    if (!currentUser) {
+      console.error("Current user not found in the database.");
+      res.status(500).render('error', { error: "Current user not found." });
+      return;
+    }
+
+    const friendsIds = currentUser.friends || [];
+
+    const friends = [];
+    console.log("Friends IDs before processing:", friendsIds);
+    for (const friendId of friendsIds) {
+      console.log("Processing friend ID:", friendId);
+
+      const processedFriendId = friendId instanceof ObjectId ? friendId : ObjectId.isValid(friendId) ? friendId : null;
+      if (processedFriendId) {
+        try {
+          const friend = await userCollection.findOne({ _id: processedFriendId }, { projection: { name: 1, email: 1 } });
+          console.log("Friend Details:", friend);
+          if (friend) {
+            friends.push(friend);
+          }
+        } catch (error) {
+          console.error("Error fetching friend details:", error);
+        }
+      } else {
+        console.error("Invalid friend ID:", friendId);
+      }
+    }
+    console.log("Friends:", friends);
+
+    const usersToAdd = allUsers.filter(user => !friends.some(friend => friend._id.equals(user._id)));
+
+    res.render('friends', {
+      username: req.session.name,
+      email: req.session.email,
+      allUsers: usersToAdd,
+      friends: friends
+    });
+  } catch (error) {
+    console.error("Error fetching users or friends:", error);
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+});
+
+app.post("/addFriend/:userId", sessionValidation, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log("User ID:", userId);
+    console.log("Session User ID:", req.session.user_id);
+
+    const currentUser = await userCollection.findOne({ _id: ObjectId.createFromHexString(req.session.user_id) });
+    console.log("Current User:", currentUser);
+
+    const user = await userCollection.findOne({ _id: ObjectId.createFromHexString(userId) });
+    console.log("User found:", user);
+
+    if (!user) {
+      console.log("User not found");
+      res.status(404).render('error', { error: "User not found." });
+      return;
+    }
+
+    await userCollection.updateOne(
+      { _id: ObjectId.createFromHexString(req.session.user_id) },
+      { $push: { friends: ObjectId.createFromHexString(userId) } }
+    );
+
+    console.log("Friend added successfully");
+
+    res.redirect("/friends");
+  } catch (error) {
+    console.error("Error adding friend:", error);
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+});
+
+app.post("/removeFriend/:friendId", sessionValidation, async (req, res) => {
+  try {
+    const friendId = req.params.friendId;
+    const userId = req.session.user_id;
+
+    await userCollection.updateOne(
+      { _id: ObjectId.createFromHexString(userId) },
+      { $pull: { friends: ObjectId.createFromHexString(friendId) } }
+    );
+
+    console.log("Friend removed successfully");
+
+    res.redirect("/friends");
+  } catch (error) {
+    console.error("Error removing friend:", error);
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+});
 
 app.get("*", (req, res) => {
   res.status(404);

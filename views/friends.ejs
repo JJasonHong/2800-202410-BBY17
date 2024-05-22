@@ -1,0 +1,156 @@
+<style>
+     body {
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #c9d6ff);          
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    margin: 0;
+    font-family: Arial, sans-serif;
+  }
+
+  .container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+    background-color: #c9d6ff;
+    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  h1 {
+    text-align: center;
+    color: #512da8;
+  }
+
+  .dropdown {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  #listDropdown {
+    padding: 8px 15px;
+    font-size: 16px;
+    border: none;
+    border-radius: 5px;
+    background-color: #5c6bc0;
+    color: #fff;
+    cursor: pointer;
+  }
+
+  #listDropdown:hover {
+    background-color: #5c68ae;
+  }
+
+  .user-list,
+  .friend-list {
+    list-style: none;
+    padding: 0;
+  }
+
+  .user-item,
+  .friend-item {
+    margin-bottom: 10px;
+    padding: 10px;
+    background-color: #eee;
+    border-radius: 5px;
+  }
+
+  .user-item button,
+  .friend-item button {
+    background-color: #5c6bc0;
+    color: #fff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 3px;
+    cursor: pointer;
+  }
+
+  .user-item button:hover,
+  .friend-item button:hover {
+    background-color: #512da8;
+  }
+  .user-icon {
+    color: #37CDAC; /* Purple color for user icon */
+    margin-right: 5px; /* Add some spacing between icon and text */
+  }
+
+  .friend-icon {
+    color: #64ACC5; /* Red color for friend icon */
+    margin-right: 5px; /* Add some spacing between icon and text */
+  }
+
+  /* Add custom styling for user and friend names */
+  .user-name {
+    color: #333; /* Black color for user name */
+  }
+
+  .friend-name {
+    color: #333; /* Black color for friend name */
+  }
+</style>
+<%- include("templates/header") %>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-XXX" crossorigin="anonymous">
+<body>
+  <div class="container">
+    <h1>Friends</h1>
+    
+    <!-- Dropdown menu to toggle between lists -->
+    <div class="dropdown">
+      <select id="listDropdown" onchange="toggleList()">
+        <option value="allUsers">All Users</option>
+        <option value="friends">My Friends</option>
+      </select>
+    </div>
+    
+  <!-- List of Users -->
+<div id="allUsersList">
+    <h2>All Users:</h2>
+    <ul class="user-list">
+      <% allUsers.forEach(function(user) { %>
+        <li class="user-item">
+          <i class="fas fa-user user-icon"></i> <!-- User icon -->
+          <span class="user-name"><%= user.name %></span> (<%= user.email %>)
+          <form class="add-friend-form" action="/addFriend/<%= user._id %>" method="POST">
+            <button type="submit">Add Friend</button>
+          </form>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+  
+  <!-- List of Friends -->
+  <div id="friendsList" style="display: none;">
+    <h2>My Friends:</h2>
+    <ul class="friend-list">
+      <% friends.forEach(function(friend) { %>
+        <li class="friend-item">
+          <i class="fas fa-user-friends friend-icon"></i> <!-- Friend icon -->
+          <span class="friend-name"><%= friend.name %></span> (<%= friend.email %>)
+          <form action="/removeFriend/<%= friend._id %>" method="POST">
+            <button type="submit">Remove</button>
+          </form>
+        </li>
+      <% }); %>
+    </ul>
+  </div>
+<script>
+  function toggleList() {
+    var dropdown = document.getElementById("listDropdown");
+    var selectedValue = dropdown.options[dropdown.selectedIndex].value;
+    
+    var allUsersList = document.getElementById("allUsersList");
+    var friendsList = document.getElementById("friendsList");
+    
+    if (selectedValue === "allUsers") {
+      allUsersList.style.display = "block";
+      friendsList.style.display = "none";
+    } else if (selectedValue === "friends") {
+      allUsersList.style.display = "none";
+      friendsList.style.display = "block";
+    }
+  }
+</script>
+
+<%- include("templates/footer") %>
