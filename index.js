@@ -253,6 +253,7 @@ app.post('/upload', upload.array('images'), async (req, res) => {
       date: date,    // Date associated with the capsule
       images: images,  // Array of image paths
       user_id: user_id,  // ID of the user who uploaded the capsule
+      lock: false,
     };
     await capsuleCollection.insertOne(newCapsule);
 
