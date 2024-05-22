@@ -422,6 +422,16 @@ app.use(express.static(__dirname + "/images"));
 
 
 
+app.get('/members', (req, res) => {
+  // Retrieve the necessary data
+  const username = req.session.username;
+  const email = req.session.email;
+
+  // Render the members page template with the data
+  res.render('members', { username, email }); // Pass both username and email
+});
+
+
 app.get("*", (req, res) => {
   res.status(404);
   res.send("Page not found - 404");
