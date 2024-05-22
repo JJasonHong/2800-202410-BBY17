@@ -1,4 +1,3 @@
-<!-- Referenced code from https://www.youtube.com/watch?v=EaBSeNSc-2c -->
 <!DOCTYPE html>
 <html lang="en">
 
@@ -29,7 +28,7 @@
       cursor: pointer;
     }
 
-    .image {
+    .media {
       height: 150px;
       border-radius: 5px;
       box-shadow: 0 0 5px rgba(0, 0, 0, 0.15);
@@ -39,12 +38,13 @@
       margin-bottom: 15px;
     }
 
-    .image img {
+    .media img,
+    .media video {
       height: 100%;
       width: 100%;
     }
 
-    .image span {
+    .media span {
       position: absolute;
       top: 5px;
       right: 5px;
@@ -60,7 +60,7 @@
       align-items: center;
     }
 
-    .image span:hover {
+    .media span:hover {
       opacity: 0.8;
     }
 
@@ -93,8 +93,8 @@
 
         <!-- Drag & Drop / Browse File Input -->
         <div class="input-div d-flex justify-content-center align-items-center text-center">
-          <p>Drag & drop photos here or <span class="text-primary font-weight-bold">Browse</span></p>
-          <input type="file" class="file" multiple="multiple" accept="image/jpeg, image/png, image/jpg" />
+          <p>Drag & drop photos or videos here or <span class="text-primary font-weight-bold">Browse</span></p>
+          <input type="file" class="file" multiple="multiple" accept="image/jpeg, image/png, image/jpg, video/mp4, video/ogg, video/webm, video/mkv" />
         </div>
 
         <!-- Upload Form -->
@@ -121,14 +121,24 @@
 
     // Function to display the selected images in the preview area
     function displayQueuedImages() {
-      let images = "";
-      queuedImagesArray.forEach((image, index) => {
-        images += `<div class="image">
-                    <img src="${URL.createObjectURL(image)}" alt="image">
-                    <span onclick="deleteQueuedImage(${index})">&times;</span>
-                  </div>`;
+      let media = "";
+      queuedImagesArray.forEach((file, index) => {
+        if (file.type.startsWith("image/")) {
+          media += `<div class="media">
+                      <img src="${URL.createObjectURL(file)}" alt="image">
+                      <span onclick="deleteQueuedImage(${index})">&times;</span>
+                    </div>`;
+        } else if (file.type.startsWith("video/")) {
+          media += `<div class="media">
+                      <video controls>
+                        <source src="${URL.createObjectURL(file)}" type="${file.type}">
+                        Your browser does not support the video tag.
+                      </video>
+                      <span onclick="deleteQueuedImage(${index})">&times;</span>
+                    </div>`;
+        }
       });
-      queuedDiv.innerHTML = images;
+      queuedDiv.innerHTML = media;
     }
 
     // Function to remove an image from the queue
@@ -155,9 +165,9 @@
       e.preventDefault(); // Prevent open the file in the browser
       const files = e.dataTransfer.files; // Get the files that were dropped into the inputDiv
       for (let i = 0; i < files.length; i++) { // Loop through each dropped file
-        if (!files[i].type.match("image.*")) continue; // If the file is not an image, skip it and continue to the next file
+        if (!files[i].type.match("image.*") && !files[i].type.match("video.*")) continue; // If the file is not an image or video, skip it and continue to the next file
         // Check if the file name is not already in the queuedImagesArray
-        if (queuedImagesArray.every(image => image.name !== files[i].name)) {
+        if (queuedImagesArray.every(file => file.name !== files[i].name)) {
           queuedImagesArray.push(files[i]); // If the file is unique, add it to the queuedImagesArray
         }
       }
@@ -170,7 +180,7 @@
       const formData = new FormData();
       formData.append('title', document.getElementById('title').value);
       formData.append('date', document.getElementById('date').value);
-      queuedImagesArray.forEach(image => formData.append('images', image));
+      queuedImagesArray.forEach(file => formData.append('images', file));
 
       // Fetch API to send the form data
       fetch('/upload', {
@@ -187,12 +197,12 @@
         .catch(error => {
           console.error('Error:', error);
           // Display error message
-          serverMessage.textContent = data.message;
+          serverMessage.textContent = 'Error uploading files';
           serverMessage.classList.add('alert', 'alert-danger');
         });
     });
   </script>
-      <%- include("templates/footer") %>
+  <%- include("templates/footer") %>
 </body>
 
 </html>

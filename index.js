@@ -41,6 +41,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'uploads',
+    resource_type: 'auto',
     allowedFormats: ['jpg', 'png', 'jpeg'],
   },
 });
@@ -251,6 +252,7 @@ app.post('/upload', upload.array('images'), async (req, res) => {
     };
     await capsuleCollection.insertOne(newCapsule);
 
+    
     // Send a success response with a message
     res.json({ message: "Upload successful" });
   } catch (error) {
