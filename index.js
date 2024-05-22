@@ -415,6 +415,9 @@ app.post("/resetPassword/:OTP", async (req, res) => {
   }
 });
 
+//Lock Capsule Feature
+
+
 
 app.use(express.static(__dirname + '/public'));
 
