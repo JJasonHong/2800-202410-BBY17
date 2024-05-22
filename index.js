@@ -224,13 +224,13 @@ app.get("/logout", (req, res) => {
 
 app.get('/members', (req, res) => {
   // Retrieve the necessary data
-  // const authenticated = req.session.authenticated;
   const username = req.session.username;
   const email = req.session.email;
 
   // Render the members page template with the data
-  res.render('members', { username }, { email });
+  res.render('members', { username, email }); // Pass both username and email
 });
+
 
 app.get("*", (req, res) => {
   res.status(404);
