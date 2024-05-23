@@ -42,6 +42,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'uploads',
+    resource_type: 'auto',
     allowedFormats: ['jpg', 'png', 'jpeg'],
   },
 });
@@ -245,23 +246,38 @@ app.get('/createCapsule', sessionValidation, (req, res) => {
 //  handle image uploads
 app.post('/upload', upload.array('images'), async (req, res) => {
   try {
-    const { title, date } = req.body;
+    const { title, date, 'capsule-caption': capsuleCaption } = req.body;
     const user_id = req.session.user_id;
-    const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
+
+    const captionsArray = req.body.captions || [];
+    const images = req.files.map((file, index) => {
+      const caption = captionsArray[index] || '';
+      return {
+        path: file.path,
+        caption: caption
+      };
+    });
+
+    console.log('Images Array:', images);
     const newCapsule = {
-      title: title,  // Title of the capsule
-      date: date,    // Date associated with the capsule
-      images: images,  // Array of image paths
-      user_id: user_id,  // ID of the user who uploaded the capsule
+      title: title, // Title of the capsule
+      date: date, // Date associated with the capsule
+      capsuleCaption: capsuleCaption, // Caption for the entire capsule
+      media: images, // Array of media objects with paths and captions
+      user_id: user_id, // ID of the user who uploaded the capsule
     };
     await capsuleCollection.insertOne(newCapsule);
-
     // Send a success response with a message
     res.json({ message: "Upload successful" });
   } catch (error) {
+    console.error(error);
     res.status(500).json({ message: "Upload failed" });
   }
 });
+
+
+
+
 
 app.get('/openCapsule', sessionValidation, async (req, res) => {
   //TODO: validate open date before giving user access
