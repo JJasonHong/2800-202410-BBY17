@@ -15,6 +15,7 @@ const MongoClient = require("mongodb").MongoClient;
 const Joi = require("joi");
 const path = require('path');
 const favicon = require('serve-favicon');
+const { get } = require("http");
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -79,6 +80,74 @@ app.use(
     resave: true,
   })
 );
+
+//Get Current date
+function getCurrentDate() {
+  const currentDate = new Date();
+  const date = currentDate.toISOString().split('T')[0];
+  // console.log("Current date: " + date);
+  return date;
+}
+
+async function unlockCapsule() {
+  const currentDate = getCurrentDate();
+  
+  const result = await capsuleCollection.find({ lockedUntil: { $lte: currentDate } }).project({user_id: 1, title: 1}).toArray();
+  // console.log("unlockCapsule: ", result.map(item => item.lockedUntil));
+  console.log(result);
+
+  if (result.length == 0) {
+    console.log("No capsules to unlock");
+    return;
+  } else {
+    
+    const capsuleNames = result.map(item => item.title);
+    console.log("Capsules to unlock: ", capsuleNames);
+    // const userIDs = result.map(item => item.user_id);
+    const userIDs = result[0].user_id;
+    console.log("User IDs: ", userIDs);
+    const userObjectID = new ObjectId(userIDs);
+        
+    const user = await userCollection.find({ _id: userObjectID }).project({ name: 1, email: 1 }).toArray();
+    console.log("get email from here:" + user[0].email);
+
+    result.forEach(async (item) => {
+      console.log("Unlocking Capsule: ", item.title);
+      await capsuleCollection.updateOne({ _id: item._id }, { $set: { lock: false, lockedUntil: null } });
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "memorylanebby@gmail.com",
+        pass: "aqya efks nlpl ngtj",
+      },
+    });
+
+    let info = await transporter.sendMail({
+      from: 'memorylanebby@gmail.com', // sender address
+      to: user[0].email, // list of receivers
+      subject: "NoReply - Memory Lane: Capsule Unlocked", // Subject line
+      // text: `Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.`,
+      html: `<h2>Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.<h2></br>
+      <p><a href="https://two800-202410-bby17-q3pp.onrender.com">Click here</a> to sign in</p>`, // html body
+    });
+    console.log("Message sent: %s", info.messageId);
+
+  }
+}
+
+  //Scheduler set up
+  const schedule = require('node-schedule');
+
+//unlock capsule every ... seconds/mins/hours/days/months/years
+const job = schedule.scheduleJob('*/5 * * * * *', () => {
+  console.log('Running unlockCapsule job');
+  unlockCapsule();
+});
 
 function isValidSession(req) {
   if (req.session.authenticated) {
@@ -223,7 +292,7 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({ user_id: req.session.user_id }).project({ title: 1, date: 1, images: 1, user_id: 1 }).toArray();
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
@@ -260,11 +329,10 @@ app.post('/upload', upload.array('images'), async (req, res) => {
 
     console.log('Images Array:', images);
     const newCapsule = {
-      title: title, // Title of the capsule
-      date: date, // Date associated with the capsule
-      capsuleCaption: capsuleCaption, // Caption for the entire capsule
-      media: images, // Array of media objects with paths and captions
-      user_id: user_id, // ID of the user who uploaded the capsule
+      title: title,  // Title of the capsule
+      date: date,    // Date associated with the capsule
+      images: images,  // Array of image paths
+      user_id: user_id,  // ID of the user who uploaded the capsule
     };
     await capsuleCollection.insertOne(newCapsule);
     // Send a success response with a message
@@ -284,7 +352,7 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({ _id: objID }).project({ title: 1, date: 1, images: 1, user_id: 1 }).toArray();
+  const result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
 
 
   if (result.length != 1) {
@@ -429,6 +497,41 @@ app.post("/resetPassword/:OTP", async (req, res) => {
     // Render an error page if something goes wrong
     res.status(500).render('error', { error: "Server error. Please try again later." });
   }
+});
+
+//Lock/unlock Capsule Feature
+app.post('/lockUnlockCapsule', sessionValidation, async (req, res) => {
+  console.log("Locking Capsule");
+  const lockedUntil = new Date(req.body.lockedUntil);
+  const date = lockedUntil.getDate();
+  const month = lockedUntil.getMonth() + 1; // Adding 1 to month since it is zero-based
+  const year = lockedUntil.getFullYear();
+
+  const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
+  console.log(formattedDate);
+  const capsuleID = req.query.id;
+  const objID = new ObjectId(capsuleID);
+  // console.log(objID);
+  let result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
+console.log(result[0].lock);
+  
+try {
+  if (result[0].lock == true) {
+    result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: false, lockedUntil: null}});
+    console.log("Capsule unlocked");
+    res.redirect('/members');
+    return;
+  } else {
+  result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: true, lockedUntil: formattedDate}});
+  console.log("Capsule locked");
+  res.redirect('/members');}
+} catch (err) {
+  console.error("Error locking capsule:", err);
+
+  // Render an error page if something goes wrong
+  res.status(500).render('error', { error: "Server error. Please try again later." });
+}
+
 });
 
 
