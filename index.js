@@ -292,7 +292,7 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
@@ -333,6 +333,7 @@ app.post('/upload', upload.array('images'), async (req, res) => {
       date: date,    // Date associated with the capsule
       images: images,  // Array of image paths
       user_id: user_id,  // ID of the user who uploaded the capsule
+      lock: false, // Lock status of the capsule
     };
     await capsuleCollection.insertOne(newCapsule);
     // Send a success response with a message
@@ -513,10 +514,10 @@ app.post('/lockUnlockCapsule', sessionValidation, async (req, res) => {
   const objID = new ObjectId(capsuleID);
   // console.log(objID);
   let result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
-console.log(result[0].lock);
+console.log("Lock Status:" + result[0].lock);
   
 try {
-  if (result[0].lock == true) {
+  if (result[0].lock === true) {
     result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: false, lockedUntil: null}});
     console.log("Capsule unlocked");
     res.redirect('/members');
@@ -534,22 +535,9 @@ try {
 
 });
 
-
 app.use(express.static(__dirname + '/public'));
 
 app.use(express.static(__dirname + "/images"));
-
-
-
-app.get('/members', (req, res) => {
-  // Retrieve the necessary data
-  const username = req.session.username;
-  const email = req.session.email;
-
-  // Render the members page template with the data
-  res.render('members', { username, email }); // Pass both username and email
-});
-
 
 app.get('/friends', sessionValidation, async (req, res) => {
   try {
