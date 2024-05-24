@@ -1,0 +1,71 @@
+<style>
+  .imgcontainer {
+    width: 400px;
+    height: 225px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #display_image {
+    width: 300px;
+    height: 169px;
+    border: 1px solid black;
+    background-position: center;
+    background-size: cover;
+  }
+</style>
+<body>
+  <%- include("templates/header") %>
+  <div class="container">
+    <h2 class="pt-4">Edit Profile</h2>
+    <form action="/edit" method="POST" enctype="multipart/form-data">
+      <div class="form-group m-3">
+        <label for="profilePic">Profile Picture</label>
+        <div class="imgcontainer">
+          <input
+            type="file"
+            id="image_input"
+            accept="image/jpeg, image/png, image/jpg"
+          />
+          <div id="display_image"></div>
+        </div>
+      </div>
+      <div class="form-group m-3">
+        <label for="backgroundPic">Background Picture</label>
+        <div class="imgcontainer">
+          <input
+            type="file"
+            id="image_input"
+            accept="image/jpeg, image/png, image/jpg"
+          />
+          <div id="display_image"></div>
+        </div>
+      </div>
+      <div class="form-group m-3">
+        <label for="bio">Bio</label>
+        <textarea class="form-control" id="bio" name="bio" rows="3"></textarea>
+      </div>
+      <button type="submit" class="btn btn-primary m-3">Update Profile</button>
+    </form>
+  </div>
+  
+  <script>
+    const image_input = document.querySelector("#image_input");
+
+    image_input.addEventListener("change", function () {
+      const reader = new FileReader();
+      reader.addEventListener("load", () => {
+        const uploaded_image = reader.result;
+        document.querySelector(
+          "#display_image"
+        ).style.backgroundImage = `url(${uploaded_image})`;
+      });
+      reader.readAsDataURL(this.files[0]);
+    });
+  </script>
+
+  <%- include("templates/footer") %>
+
