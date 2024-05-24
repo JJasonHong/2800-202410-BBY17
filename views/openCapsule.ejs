@@ -12,16 +12,18 @@
             box-shadow: 2px 2px 5px 2px rgb(0 0 0 / 20%);
         }
 
-        .img {
-            max-width: 80%;
-            cursor: zoom-in;
-            z-index: 1;
+        .media-container {
+            text-align: center;
+            margin-bottom: 20px;
         }
 
-        .video {
+        .img, .video {
             max-width: 80%;
             cursor: zoom-in;
             z-index: 1;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         /* Code referenced from https://www.youtube.com/watch?v=cb8NbWz5plg */
@@ -50,48 +52,50 @@
             height: 100%;
             z-index: 100;
         }
+
+        .caption {
+            margin-top: 10px;
+            font-size: 1.25rem;
+        }
     </style>
 </head>
 
 <body>
-    <div id="dim" onclick="unfocus()">
-    </div>
+    <div id="dim" onclick="unfocus()"></div>
     <%- include("templates/header") %>
-        <div class="container py-2" id="capsule-pics">
-            <div class="col">
-                <h2 class="text-center py-3"><%- data[0].title %></h2>
-                <p class="text-center"><%- data[0].capsuleCaption %></p>
-                <img id="zoomed-img" class="unfocused" onclick="unfocus()">
-                <% for(let i=0; i < data[0].images.length; i++) { %>
-                    <div class="row d-flex align-items-center justify-content-center my-3">
-                        <% if (data[0].images[i].type.startsWith("image/")) { %>
-                            <img src="<%- data[0].images[i].url %>" class="img"
-                                onclick='b("<%- data[0].images[i].url %>")'>
-                            <% } else if (data[0].images[i].type.startsWith("video/")) { %>
-                                <video class="video" controls onclick='b("<%- data[0].images[i].url %>")'>
-                                    <source src="<%- data[0].images[i].url %>" type="<%- data[0].images[i].type %>">
-                                    Your browser does not support the video tag.
-                                </video>
-                                <% } %>
-                                    <p class="text-center"><%- data[0].images[i].caption %></p>
-                    </div>
+    <div class="container py-2" id="capsule-pics">
+        <div class="col">
+            <h2 class="text-center py-3"><%- data[0].title %></h2>
+            <h3 class="text-center"><%- data[0].capsuleCaption %></h3>
+            <img id="zoomed-img" class="unfocused" onclick="unfocus()">
+            <% for(let i = 0; i < data[0].images.length; i++) { %>
+                <div class="media-container">
+                    <% if (data[0].images[i].type.startsWith("image/")) { %>
+                        <img src="<%- data[0].images[i].url %>" class="img" onclick='b("<%- data[0].images[i].url %>")'>
+                    <% } else if (data[0].images[i].type.startsWith("video/")) { %>
+                        <video class="video" controls onclick='b("<%- data[0].images[i].url %>")'>
+                            <source src="<%- data[0].images[i].url %>" type="<%- data[0].images[i].type %>">
+                        </video>
                     <% } %>
-            </div>
+                    <p class="caption"><%- data[0].images[i].caption %></p>
+                </div>
+            <% } %>
         </div>
+    </div>
 
-        <script>
-            function b(src) {
-                document.getElementById('zoomed-img').src = src;
-                document.getElementById('dim').style.display = "block";
-                document.getElementById('zoomed-img').style.display = "block";
-            }
+    <script>
+        function b(src) {
+            document.getElementById('zoomed-img').src = src;
+            document.getElementById('dim').style.display = "block";
+            document.getElementById('zoomed-img').style.display = "block";
+        }
 
-            function unfocus() {
-                document.getElementById('dim').style.display = "none";
-                document.getElementById('zoomed-img').style.display = "none";
-            }
-        </script>
-        <%- include("templates/footer") %>
+        function unfocus() {
+            document.getElementById('dim').style.display = "none";
+            document.getElementById('zoomed-img').style.display = "none";
+        }
+    </script>
+    <%- include("templates/footer") %>
 </body>
 
 </html>

@@ -357,7 +357,7 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const result = await capsuleCollection.find({_id: objID}).project({title: 1, capsuleCaption: 1, date: 1, images: 1, user_id: 1}).toArray();
 
 
   if (result.length != 1) {

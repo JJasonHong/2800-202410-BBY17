@@ -754,7 +754,15 @@ body.dark-mode {
 
                       <p><%- capsules[i].date %></p>
                       <div class="image-container">
-                        <img src="<%- capsules[i].images[0].url %>" alt="Capsule Image">
+                        <% if (capsules[i].images && capsules[i].images.length > 0) { %>
+                          <% if (capsules[i].images[0].type.startsWith('image/')) { %>
+                            <img src="<%- capsules[i].images[0].url %>" alt="Capsule Image">
+                          <% } else { %>
+                            <video controls>
+                              <source src="<%- capsules[i].images[0].url %>" type="<%- capsules[i].images[0].type %>">
+                            </video>
+                      </div>
+
                       </div>
                       <div class="button-container">
                         <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
