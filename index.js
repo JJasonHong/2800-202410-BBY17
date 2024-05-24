@@ -317,13 +317,27 @@ app.get('/createCapsule', sessionValidation, (req, res) => {
 //  handle image uploads
 app.post('/upload', upload.array('images'), async (req, res) => {
   try {
-    const { title, date } = req.body;
+    const { title, date, 'capsule-caption': capsuleCaption } = req.body;
     const user_id = req.session.user_id;
-    const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
+    const sections = req.body.sections || [];
+    const captionsArray = req.body.captions || [];
+    const imageOrdering = req.body.ordering || [];
+    const images = req.files.map((file, index) => {
+      const caption = captionsArray[index] || '';
+      const order = imageOrdering[index] || 1;
+      return {
+        path: file.path,
+        caption: caption,
+        order: order
+      };
+    });
+
     const newCapsule = {
       title: title,  // Title of the capsule
       date: date,    // Date associated with the capsule
       images: images,  // Array of image paths
+      capsuleCaption: capsuleCaption,
+      sections: sections,
       user_id: user_id,  // ID of the user who uploaded the capsule
     };
     await capsuleCollection.insertOne(newCapsule);
@@ -340,7 +354,8 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const result = await capsuleCollection.find({_id: objID})
+    .project({title: 1, date: 1, images: 1, user_id: 1, capsuleCaption: 1, sections: 1}).toArray();
 
 
   if (result.length != 1) {
