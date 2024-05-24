@@ -302,7 +302,7 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1}).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
@@ -328,20 +328,28 @@ app.post('/upload', upload.array('images'), async (req, res) => {
   try {
     const { title, date, 'capsule-caption': capsuleCaption } = req.body;
     const user_id = req.session.user_id;
+    const sections = req.body.sections || [];
     const captionsArray = req.body.captions || [];
-    const images = req.files.map((file, index) => ({
-      url: file.path,
-      type: file.mimetype, 
-      caption: captionsArray[index] || ''
-    }));
-    console.log('Images Array:', images);
+    const imageOrdering = req.body.ordering || [];
+    const images = req.files.map((file, index) => {
+      const caption = captionsArray[index] || '';
+      const order = imageOrdering[index] || 1;
+      return {
+        path: file.path,
+        caption: caption,
+        order: order,
+        type: file.mimetype
+      };
+    });
+
     const newCapsule = {
-      title: title,
-      date: date,
+      title: title,  // Title of the capsule
+      date: date,    // Date associated with the capsule
+      images: images,  // Array of image paths
       capsuleCaption: capsuleCaption,
-      images: images,
-      user_id: user_id,
-      lock: false,
+      sections: sections,
+      user_id: user_id,  // ID of the user who uploaded the capsule
+      lock: false
     };
     await capsuleCollection.insertOne(newCapsule);
 
@@ -357,8 +365,8 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID}).project({title: 1, capsuleCaption: 1, date: 1, images: 1, user_id: 1}).toArray();
-
+  const result = await capsuleCollection.find({_id: objID})
+    .project({title: 1, date: 1, images: 1, user_id: 1, capsuleCaption: 1, sections: 1}).toArray();
 
   if (result.length != 1) {
     console.log("Capsule not found");
