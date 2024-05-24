@@ -326,31 +326,38 @@ app.get('/createCapsule', sessionValidation, (req, res) => {
 //  handle image uploads
 app.post('/upload', upload.array('images'), async (req, res) => {
   try {
-    const { title, date } = req.body;
+    const { title, date, 'capsule-caption': capsuleCaption } = req.body;
     const user_id = req.session.user_id;
-    const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
+    const captionsArray = req.body.captions || [];
+    const images = req.files.map((file, index) => ({
+      url: file.path,
+      type: file.mimetype, 
+      caption: captionsArray[index] || ''
+    }));
+    console.log('Images Array:', images);
     const newCapsule = {
-      title: title,  // Title of the capsule
-      date: date,    // Date associated with the capsule
-      images: images,  // Array of image paths
-      user_id: user_id,  // ID of the user who uploaded the capsule
-      lock: false,  // Lock status of the capsule
+      title: title,
+      date: date,
+      capsuleCaption: capsuleCaption,
+      images: images,
+      user_id: user_id,
+      lock: false,
     };
     await capsuleCollection.insertOne(newCapsule);
 
-    // Send a success response with a message
     res.json({ message: "Upload successful" });
   } catch (error) {
     res.status(500).json({ message: "Upload failed" });
   }
 });
 
+
 app.get('/openCapsule', sessionValidation, async (req, res) => {
   //TODO: validate open date before giving user access
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const result = await capsuleCollection.find({_id: objID}).project({title: 1, capsuleCaption: 1, date: 1, images: 1, user_id: 1}).toArray();
 
 
   if (result.length != 1) {
