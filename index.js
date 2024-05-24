@@ -11,9 +11,11 @@ const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const MongoClient = require("mongodb").MongoClient;
+
 const Joi = require("joi");
 const path = require('path');
 const favicon = require('serve-favicon');
+const { get } = require("http");
 const port = process.env.PORT || 3000;
 const app = express();
 
@@ -41,6 +43,7 @@ const storage = new CloudinaryStorage({
   cloudinary: cloudinary,
   params: {
     folder: 'uploads',
+    resource_type: 'auto',
     allowedFormats: ['jpg', 'png', 'jpeg'],
   },
 });
@@ -67,8 +70,7 @@ app.set('view engine', 'ejs');
 
 const userCollection = database.db(mongodb_database).collection("users");
 const capsuleCollection = database.db(mongodb_database).collection("capsule");
-
-const ObjectId = require('mongodb').ObjectId;
+const { ObjectId } = require('mongodb');
 
 app.use(
   session({
@@ -78,6 +80,83 @@ app.use(
     resave: true,
   })
 );
+
+//Get Current date
+function getCurrentDate() {
+  const currentDate = new Date();
+  const date = currentDate.toISOString().split('T')[0];
+  console.log("Current date: " + date);
+  return date;
+}
+
+async function unlockCapsule() {
+  const currentDate = getCurrentDate();
+  
+  const result = await capsuleCollection.find({ lockedUntil: { $lte: currentDate } }).project({user_id: 1, title: 1}).toArray();
+  // console.log("unlockCapsule: ", result.map(item => item.lockedUntil));
+  console.log(result);
+try {
+  if (result.length == 0) {
+    console.log("No capsules to unlock");
+    return;
+  } else {
+    
+    const capsuleNames = result.map(item => item.title);
+    console.log("Capsules to unlock: ", capsuleNames);
+    // const userIDs = result.map(item => item.user_id);
+    const userIDs = result[0].user_id;
+    console.log("User IDs: ", userIDs);
+    const userObjectID = new ObjectId(userIDs);
+        
+    const user = await userCollection.find({ _id: userObjectID }).project({ name: 1, email: 1 }).toArray();
+    console.log("get email from here:" + user[0].email);
+
+    result.forEach(async (item) => {
+      console.log("Unlocking Capsule ====> "+ item.title);
+      await capsuleCollection.updateOne({ _id: item._id }, { $set: { lock: false, lockedUntil: null } });
+      function refreshMembers(req, res) {
+        if (sessionValidation) {
+          res.redirect('/members');
+        }
+      }
+      refreshMembers();
+    });
+
+    const transporter = nodemailer.createTransport({
+      service: "Gmail",
+      host: "smtp.gmail.com",
+      port: 465,
+      secure: true,
+      auth: {
+        user: "memorylanebby@gmail.com",
+        pass: "aqya efks nlpl ngtj",
+      },
+    });
+
+    let info = await transporter.sendMail({
+      from: 'memorylanebby@gmail.com', // sender address
+      to: user[0].email, // list of receivers
+      subject: "NoReply - Memory Lane: Capsule Unlocked", // Subject line
+      // text: `Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.`,
+      html: `<h2>Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.<h2></br>
+      <p><a href="https://two800-202410-bby17-q3pp.onrender.com">Click here</a> to sign in</p>`, // html body
+    });
+    console.log("Message sent: %s", info.messageId);
+
+  }
+} catch (err) {
+  console.error("Error unlocking capsule:", err);
+}
+}
+
+  //Scheduler set up
+  const schedule = require('node-schedule');
+
+//unlock capsule every ... seconds/mins/hours/days/months/years
+const job = schedule.scheduleJob('*/10 * * * * *', () => {
+  console.log('Running unlockCapsule job');
+  unlockCapsule();
+});
 
 function isValidSession(req) {
   if (req.session.authenticated) {
@@ -186,7 +265,7 @@ app.post("/loggingin", async (req, res) => {
 
   const result = await userCollection
     .find({ email: email })
-    .project({ email: 1, username: 1, password: 1, _id: 1 })
+    .project({ email: 1, name: 1, password: 1, _id: 1 })
     .toArray();
 
   if (result.length != 1) {
@@ -196,6 +275,7 @@ app.post("/loggingin", async (req, res) => {
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
     req.session.email = result[0].email;
+    req.session.name = result[0].name;
     req.session.cookie.maxAge = expireTime;
     req.session.user_id = result[0]._id;
     return res.redirect("/loggedin");
@@ -222,7 +302,7 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1}).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
@@ -230,6 +310,7 @@ app.get('/members', sessionValidation, async (req, res) => {
   // Render the members page template with the data
   res.render('members', { authenticated, username, email, capsules});
 });
+
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
@@ -245,31 +326,47 @@ app.get('/createCapsule', sessionValidation, (req, res) => {
 //  handle image uploads
 app.post('/upload', upload.array('images'), async (req, res) => {
   try {
-    const { title, date } = req.body;
+    const { title, date, 'capsule-caption': capsuleCaption } = req.body;
     const user_id = req.session.user_id;
-    const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
+    const sections = req.body.sections || [];
+    const captionsArray = req.body.captions || [];
+    const imageOrdering = req.body.ordering || [];
+    const images = req.files.map((file, index) => {
+      const caption = captionsArray[index] || '';
+      const order = imageOrdering[index] || 1;
+      return {
+        path: file.path,
+        caption: caption,
+        order: order,
+        type: file.mimetype
+      };
+    });
+
     const newCapsule = {
       title: title,  // Title of the capsule
       date: date,    // Date associated with the capsule
       images: images,  // Array of image paths
+      capsuleCaption: capsuleCaption,
+      sections: sections,
       user_id: user_id,  // ID of the user who uploaded the capsule
+      lock: false
     };
     await capsuleCollection.insertOne(newCapsule);
 
-    // Send a success response with a message
     res.json({ message: "Upload successful" });
   } catch (error) {
     res.status(500).json({ message: "Upload failed" });
   }
 });
 
+
 app.get('/openCapsule', sessionValidation, async (req, res) => {
   //TODO: validate open date before giving user access
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
-
+  const result = await capsuleCollection.find({_id: objID})
+    .project({title: 1, date: 1, images: 1, user_id: 1, capsuleCaption: 1, sections: 1}).toArray();
 
   if (result.length != 1) {
     console.log("Capsule not found");
@@ -415,12 +512,201 @@ app.post("/resetPassword/:OTP", async (req, res) => {
   }
 });
 
+//Lock/unlock Capsule Feature
+app.post('/lockUnlockCapsule', sessionValidation, async (req, res) => {
+  console.log("Locking Capsule");
+  const lockedUntil = new Date(req.body.lockedUntil);
+  const date = lockedUntil.getDate();
+  const month = lockedUntil.getMonth() + 1; // Adding 1 to month since it is zero-based
+  const year = lockedUntil.getFullYear();
+
+  const formattedDate = `${year}-${month.toString().padStart(2, '0')}-${date.toString().padStart(2, '0')}`;
+  console.log(formattedDate);
+  const capsuleID = req.query.id;
+  const objID = new ObjectId(capsuleID);
+  // console.log(objID);
+  let result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
+console.log("Lock Status:" + result[0].lock);
+  
+try {
+  if (result[0].lock == true) {
+    result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: false, lockedUntil: null}});
+    console.log("Capsule unlocked");
+    res.redirect('/members');
+    return;
+  } else {
+  result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: true, lockedUntil: formattedDate}});
+  console.log("Capsule locked");
+  res.redirect('/members');}
+} catch (err) {
+  console.error("Error locking capsule:", err);
+
+  // Render an error page if something goes wrong
+  res.status(500).render('error', { error: "Server error. Please try again later." });
+}
+
+});
 
 app.use(express.static(__dirname + '/public'));
 
 app.use(express.static(__dirname + "/images"));
 
+app.get('/friends', sessionValidation, async (req, res) => {
+  try {
+    const allUsers = await userCollection.find({ _id: { $ne: ObjectId.createFromHexString(req.session.user_id) } }).toArray();
 
+    const currentUser = await userCollection.findOne({ _id: ObjectId.createFromHexString(req.session.user_id) });
+
+    if (!currentUser) {
+      console.error("Current user not found in the database.");
+      res.status(500).render('error', { error: "Current user not found." });
+      return;
+    }
+
+    const friendsIds = currentUser.friends || [];
+
+    const friends = [];
+    console.log("Friends IDs before processing:", friendsIds);
+    for (const friendId of friendsIds) {
+      console.log("Processing friend ID:", friendId);
+
+      const processedFriendId = friendId instanceof ObjectId ? friendId : ObjectId.isValid(friendId) ? friendId : null;
+      if (processedFriendId) {
+        try {
+          const friend = await userCollection.findOne({ _id: processedFriendId }, { projection: { name: 1, email: 1 } });
+          console.log("Friend Details:", friend);
+          if (friend) {
+            friends.push(friend);
+          }
+        } catch (error) {
+          console.error("Error fetching friend details:", error);
+        }
+      } else {
+        console.error("Invalid friend ID:", friendId);
+      }
+    }
+    console.log("Friends:", friends);
+
+    const usersToAdd = allUsers.filter(user => !friends.some(friend => friend._id.equals(user._id)));
+
+    res.render('friends', {
+      username: req.session.name,
+      email: req.session.email,
+      allUsers: usersToAdd,
+      friends: friends
+    });
+  } catch (error) {
+    console.error("Error fetching users or friends:", error);
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+});
+
+app.post("/addFriend/:userId", sessionValidation, async (req, res) => {
+  try {
+    const userId = req.params.userId;
+    console.log("User ID:", userId);
+    console.log("Session User ID:", req.session.user_id);
+
+    const currentUser = await userCollection.findOne({ _id: ObjectId.createFromHexString(req.session.user_id) });
+    console.log("Current User:", currentUser);
+
+    const user = await userCollection.findOne({ _id: ObjectId.createFromHexString(userId) });
+    console.log("User found:", user);
+
+    if (!user) {
+      console.log("User not found");
+      res.status(404).render('error', { error: "User not found." });
+      return;
+    }
+
+    await userCollection.updateOne(
+      { _id: ObjectId.createFromHexString(req.session.user_id) },
+      { $push: { friends: ObjectId.createFromHexString(userId) } }
+    );
+
+    console.log("Friend added successfully");
+
+    res.redirect("/friends");
+  } catch (error) {
+    console.error("Error adding friend:", error);
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+});
+
+app.post("/removeFriend/:friendId", sessionValidation, async (req, res) => {
+  try {
+    const friendId = req.params.friendId;
+    const userId = req.session.user_id;
+
+    await userCollection.updateOne(
+      { _id: ObjectId.createFromHexString(userId) },
+      { $pull: { friends: ObjectId.createFromHexString(friendId) } }
+    );
+
+    console.log("Friend removed successfully");
+
+    res.redirect("/friends");
+  } catch (error) {
+    console.error("Error removing friend:", error);
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+});
+
+app.get('/editProfile', sessionValidation, (req, res) => {
+  res.render('editProfile'); 
+});
+
+app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic' }]), async (req, res, next) => {
+  try {
+    const uploads = [];
+
+    if (req.files.profilePic) {
+      const profilePicStream = streamifier.createReadStream(req.files.profilePic[0].buffer);
+      const profilePicUpload = new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream((error, result) => {
+          if (error) {
+            console.error('Profile Pic Upload Error:', error);
+            reject(error);
+          } else {
+            console.log('Profile Pic Upload Success:', result);
+            resolve(result);
+          }
+        }).end(profilePicStream);
+      });
+      uploads.push(profilePicUpload);
+    }
+
+    if (req.files.backgroundPic) {
+      const backgroundPicStream = streamifier.createReadStream(req.files.backgroundPic[0].buffer);
+      const backgroundPicUpload = new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream((error, result) => {
+          if (error) {
+            console.error('Background Pic Upload Error:', error);
+            reject(error);
+          } else {
+            console.log('Background Pic Upload Success:', result);
+            resolve(result);
+          }
+        }).end(backgroundPicStream);
+      });
+      uploads.push(backgroundPicUpload);
+    }
+
+    const results = await Promise.all(uploads);
+
+    const response = {
+      profilePicUrl: results[0]?.url,
+      backgroundPicUrl: results[1]?.url,
+      bio: req.body.bio
+    };
+
+    console.log('Upload Results:', response);
+    res.send('Profile updated successfully');
+  } catch (error) {
+    console.error('Error in /edit endpoint:', error);
+    res.status(500).send('An error occurred while updating the profile');
+  }
+});
 
 app.get("*", (req, res) => {
   res.status(404);

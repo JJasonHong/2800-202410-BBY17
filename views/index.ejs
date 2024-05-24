@@ -28,7 +28,7 @@
 }
 
 .showcase.active {
-    right: 300px;
+    right: 350px;
 
 }
 
@@ -156,7 +156,7 @@
 .menu {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 5rem;
     width: 300px;
     height: 100%;
     display: flex;
@@ -223,12 +223,11 @@
 
 <div class="menu">
   <ul>
-    <li><a href="#">home</a></li>
-    <li><a href="#">signup</a></li>
-    <li><a href="#">login</a></li>
-    <li><a href="#">member</a></li>
-    <li><a href="#">media</a></li>
+    <li><a href="/">home</a></li>
+    <li><a href="/loginSignUp">signup</a></li>
+    <li><a href="/loginSignUp">login</a></li>
+    <li><a href="/loginSignUp">member</a></li>
   </ul>
 </div>
-<%- include("templates/footer") %>
+<script src="landing.js"></script>
 </body>

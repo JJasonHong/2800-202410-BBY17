@@ -1,324 +1,872 @@
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MemoryLane</title>
-    <!-- bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-        integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
-
-    <style>
-        body {
-            background-color: #f1f5f9;
-        }
-
-        .card {
-            border: 0;
-            border-radius: 0.5rem;
-            box-shadow: 0 2px 4px rgba(0, 0, 20, .08), 0 1px 2px rgba(0, 0, 20, .08);
-        }
-
-        .rounded-bottom {
-            border-bottom-left-radius: 0.375rem !important;
-            border-bottom-right-radius: 0.375rem !important;
-        }
-
-        .avatar-xxl {
-            height: 7.5rem;
-            width: 7.5rem;
-        }
-
-        .nav-lt-tab {
-            border-top: 1px solid var(--dashui-border-color);
-        }
-
-        .px-4 {
-            padding-left: 1rem !important;
-            padding-right: 1rem !important;
-        }
-
-        .avatar-sm {
-            height: 2rem;
-            width: 2rem;
-        }
-
-        .nav-lt-tab .nav-item {
-            margin: -0.0625rem 1rem 0;
-        }
-
-        .nav-lt-tab .nav-item .nav-link {
-            border-radius: 0;
-            border-top: 2px solid transparent;
-            color: var(--dashui-gray-600);
-            font-weight: 500;
-            padding: 1rem 0;
-        }
-
-        .pt-20 {
-            padding-top: 8rem !important;
-        }
-
-        .avatar-xxl.avatar-indicators:before {
-            bottom: 5px;
-            height: 16%;
-            right: 17%;
-            width: 16%;
-        }
-
-        .avatar-online:before {
-            background-color: #198754;
-        }
-
-        .avatar-indicators:before {
-            border: 2px solid #FFF;
-            border-radius: 50%;
-            bottom: 0;
-            content: "";
-            display: table;
-            height: 30%;
-            position: absolute;
-            right: 5%;
-            width: 30%;
-        }
-
-        .avatar-xxl {
-            height: 7.5rem;
-            width: 7.5rem;
-        }
-
-        .mt-n10 {
-            margin-top: -3rem !important;
-        }
-
-        .me-2 {
-            margin-right: 0.5rem !important;
-        }
-
-        .align-items-end {
-            align-items: flex-end !important;
-        }
-
-        .rounded-circle {
-            border-radius: 50% !important;
-        }
-
-        .border-2 {
-            --dashui-border-width: 2px;
-        }
-
-        .border {
-            border: 1px solid #dcdcdc !important;
-        }
-
-        .py-6 {
-            padding-bottom: 1.5rem !important;
-            padding-top: 1.5rem !important;
-        }
-
-        .bg-gray-300 {
-            --dashui-bg-opacity: 1;
-            background-color: #cbd5e1 !important;
-        }
-
-        .mb-6 {
-            margin-bottom: 1.5rem !important;
-        }
-
-        .align-items-center {
-            align-items: center !important;
-        }
 
 
-        .mb-4 {
-            margin-bottom: 1rem !important;
-        }
+<style>
+  @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
+body {
+ width: 100%;
+ margin: 0;
+ padding: 0;
+ box-sizing: border-box;
+ min-height: 100vh;
+ font-family: "Poppins", sans-serif;
+ background-color: whitesmoke !important;
+ position: relative;
+}
 
-        .mb-8 {
-            margin-bottom: 2rem !important;
-        }
+ul {
+ list-style-type: none;
+ margin: 0;
+ padding: 0;
+ display: flex;
+ align-items: center;
+}
 
-        .shadow-none {
-            box-shadow: none !important;
-        }
+a {
+ text-decoration: none;
+}
 
-        .card>.list-group:last-child {
-            border-bottom-left-radius: 0.5rem;
-            border-bottom-right-radius: 0.5rem;
-            border-bottom-width: 0;
-        }
+.header__wrapper header {
+ width: 100%;
+ height: fit-content;
+ background: url("background.jpg") no-repeat center/ cover;
+ min-height: calc(100px + 15vw);
+}
 
-        .card>.list-group:first-child {
-            border-top-left-radius: 0.5rem;
-            border-top-right-radius: 0.5rem;
-            border-top-width: 0;
-        }
+.header__wrapper .cols__container .left__col {
+ padding: 30px 25px;
+ text-align: center;
+ max-width: 350px;
+ position: relative;
+ margin: 0 auto;
+}
 
-        .card>.list-group {
-            border-bottom: inherit;
-            border-top: inherit;
-        }
+.header__wrapper .cols__container .left__col .img__container {
+ position: absolute;
+ top: -60px;
+ left: 50%;
+ transform: translatex(-50%);
+ 
+}
+.header__wrapper .cols__container .left__col .img__container img {
+ width: 200px;
+ height: 200px;
+ object-fit: cover;
+ border-radius: 50%;
+ display:flexbox;
+ box-shadow: 1px 3px 12px rgba(0, 0, 0, 0.18);
+ 
+}
+/* .header__wrapper .cols__container .left__col .img__container span {
+ position: absolute;
+ background: #2afa6a;
+ width: 16px;
+ height: 16px;
+ border-radius: 50%;
+ bottom: 3px;
+ right: 11px;
+ border: 2px solid #fff;
+} */
+.header__wrapper .cols__container .left__col h2 {
+ margin-top: 100px;
+ font-weight: 600;
+ font-size: 22px;
+ margin-bottom: 5px;
+ padding: 75px 10px 10px 10px;
+}
+.header__wrapper .cols__container .left__col p {
+ font-size: 0.9rem;
+ color: #818181;
+ margin: 0;
+ padding: 10px 5px;
+}
+.header__wrapper .cols__container .left__col .about {
+ justify-content: space-between;
+ position: relative;
+ margin: 35px 0;
+}
+.header__wrapper .cols__container .left__col .about li {
+ display: flex;
+ flex-direction: column;
+ color: #818181;
+ font-size: 0.9rem;
+}
+.header__wrapper .cols__container .left__col .about li span {
+ color: #1d1d1d;
+ font-weight: 600;
+}
+.header__wrapper .cols__container .left__col .about:after {
+ position: absolute;
+ content: "";
+ bottom: -16px;
+ display: block;
+ background: #cccccc;
+ height: 1px;
+ width: 100%;
+}
+.header__wrapper .cols__container .content p {
+ font-size: 1rem;
+ color: #1d1d1d;
+ line-height: 1.8em;
+}
+.header__wrapper .cols__container .content ul {
+ gap: 30px;
+ justify-content: center;
+ align-items: center;
+ margin-top: 25px;
+}
+.header__wrapper .cols__container .content ul li {
+ display: flex;
+}
+.header__wrapper .cols__container .content ul i {
+ font-size: 1.3rem;
+}
+.header__wrapper .cols__container .right__col nav {
+ display: flex;
+ align-items: center;
+ padding: 30px 0;
+ justify-content: space-between;
+ flex-direction: column;
+}
+.header__wrapper .cols__container .right__col nav ul {
+ display: flex;
+ gap: 20px;
+ flex-direction: column;
+}
+.header__wrapper .cols__container .right__col nav ul li a {
+ text-transform: uppercase;
+ color: #818181;
+}
+.header__wrapper .cols__container .right__col nav ul li:nth-child(1) a {
+ color: #1d1d1d;
+ font-weight: 600;
+}
+.header__wrapper .cols__container .right__col nav button {
+ background: #0091ff;
+ color: #fff;
+ border: none;
+ padding: 10px 25px;
+ border-radius: 4px;
+ cursor: pointer;
+ margin-top: 20px;
+}
+.header__wrapper .cols__container .right__col nav button:hover {
+ opacity: 0.8;
+}
+.header__wrapper .cols__container .right__col .photos {
+ display: grid;
+ grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+ gap: 20px;
+}
+.header__wrapper .cols__container .right__col .photos img {
+ max-width: 100%;
+ display: block;
+ height: 100%;
+ object-fit: cover;
+}
 
-        .avatar-xl {
-            height: 5rem;
-            width: 5rem;
-        }
+.timeline {
+ position: relative;
+ max-width: 1200px;
+ margin: 100px auto;
+ padding-top: 0px;
+}
 
-        .avatar {
-            display: inline-block;
-            height: 3rem;
-            position: relative;
-            width: 3rem;
-        }
+.timelinecontainer {
+ padding: 10px 50px;
+ position: relative;
+ width: 50%;
+ animation: movedown 1s linear forwards;
+ opacity: 0;
+}
+@keyframes movedown {
+ 0% {
+   opacity: 1;
+   transform: translateY(-30px);
+ }
+ 100% {
+   opacity: 1;
+   transform: translateY(0px);
+ }
+}
 
-        .mt-n7 {
-            margin-top: -1.75rem !important;
-        }
+.text-box {
+ padding: 20px 30px;
+ background: #fff;
+ position: relative;
+ border-radius: 6px;
+ font-size: 15px;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+}
 
-        .ms-4 {
-            margin-left: 1rem !important;
-        }
+.image-container {
+ width: 100%;
+ height: auto;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ overflow: hidden;
+ margin-top: 10px;
+ padding: 10px 10px;
+}
 
-        .avatar img {
-            height: 100%;
-            -o-object-fit: cover;
-            object-fit: cover;
-            width: 100%;
-        }
+.text-box .image-container img {
+ max-width: 100%;
+ max-height: 300px;
+ object-fit: cover;
+ border-radius: 6px;
+ position: static;
+ width: auto;
+ right: auto;
+ top: auto;
+ z-index: auto;
+}
 
-        .custom-btn {
-            color: hotpink;
-            border-color: hotpink;
-        }
+.left-container {
+ left: 0;
+}
 
-        .custom-btn:hover {
-            color: white;
-            background-color: hotpink;
-            border-color: hotpink;
-        }
+.right-container {
+ left: 50%;
+}
 
-    </style>
+.container img {
+ position: absolute;
+ width: 40px;
+ border-radius: 50%;
+ right: -20px;
+ top: 32px;
+ z-index: 10;
+}
+
+.right-container img {
+ left: -20px;
+}
+
+.timeline::after {
+ content: "";
+ position: absolute;
+ width: 6px;
+ height: 100%; 
+ background: black;
+ top: 0; 
+ left: 50%;
+ margin-left: -3px;
+ z-index: -1;
+ animation: moveline 4.5s linear forwards;
+}
+
+@keyframes moveline {
+ 0% {
+   height: 0; 
+ }
+ 100% {
+   height: 100%; 
+ }
+}
+
+.text-box h2 {
+ font-weight: 600;
+}
+
+.text-box p {
+ display: inline-block;
+ margin: 15px;
+}
+
+.left-container-arrow {
+ height: 0;
+ width: 0;
+ position: absolute;
+ top: 28px;
+ z-index: 1;
+ border-top: 15px solid transparent;
+ border-bottom: 15px solid transparent;
+ border-left: 15px solid white;
+ right: -15px;
+}
+
+.right-container-arrow {
+ height: 0;
+ width: 0;
+ position: absolute;
+ top: 28px;
+ z-index: 1;
+ border-top: 15px solid transparent;
+ border-bottom: 15px solid transparent;
+ border-right: 15px solid white;
+ left: -15px;
+}
+.timelinecontainer:nth-child(1) {
+ animation-delay: 0.5s;
+}
+.timelinecontainer:nth-child(2) {
+ animation-delay: 1.5s;
+}
+.timelinecontainer:nth-child(3) {
+ animation-delay: 3.1s;
+}
+.timelinecontainer:nth-child(4) {
+ animation-delay: 3.5s;
+}
+.about a {
+  text-decoration: none;
+  color: #818181;
+}
+
+.px-4 {
+ padding-left: 1rem !important;
+ padding-right: 1rem !important;
+}
+
+.nav-lt-tab .nav-item {
+ margin: -0.0625rem 1rem 0;
+}
+
+.nav-lt-tab .nav-item .nav-link {
+ border-radius: 0;
+ border-top: 2px solid transparent;
+ color: var(--dashui-gray-600);
+ font-weight: 500;
+ padding: 1rem 0;
+}
+
+.pt-20 {
+ padding-top: 8rem !important;
+}
+
+.mt-n10 {
+ margin-top: -3rem !important;
+}
+
+.me-2 {
+ margin-right: 0.5rem !important;
+}
+
+.align-items-end {
+ align-items: flex-end !important;
+}
+
+.rounded-circle {
+ border-radius: 50% !important;
+}
+
+.border-2 {
+ --dashui-border-width: 2px;
+}
+
+.border {
+ border: 1px solid #dcdcdc !important;
+}
+
+.py-6 {
+ padding-bottom: 1.5rem !important;
+ padding-top: 1.5rem !important;
+}
+
+.bg-gray-300 {
+ --dashui-bg-opacity: 1;
+ background-color: #cbd5e1 !important;
+}
+
+.mb-6 {
+ margin-bottom: 1.5rem !important;
+}
+
+.align-items-center {
+ align-items: center !important;
+}
+
+.mb-4 {
+ margin-bottom: 1rem !important;
+}
+
+.mb-8 {
+ margin-bottom: 2rem !important;
+}
+
+.shadow-none {
+ box-shadow: none !important;
+}
+.button-container {
+    display: flex;
+    align-items: center; /* Optional: align items vertically in center */
+    gap: 5px;
+}
+
+.lock button{
+    margin-left: 10px; /* Optional: Add some space between the buttons */
+    margin-top: 11.75px;
+}
+
+.card > .list-group:last-child {
+ border-bottom-left-radius: 0.5rem;
+ border-bottom-right-radius: 0.5rem;
+ border-bottom-width: 0;
+}
+
+.card > .list-group:first-child {
+ border-top-left-radius: 0.5rem;
+ border-top-right-radius: 0.5rem;
+ border-top-width: 0;
+}
+
+.card > .list-group {
+ border-bottom: inherit;
+ border-top: inherit;
+}
+
+.mt-n7 {
+ margin-top: -1.75rem !important;
+}
+
+.ms-4 {
+ margin-left: 1rem !important;
+}
+
+.custom-btn {
+ color: hotpink;
+ border-color: hotpink;
+}
+
+.custom-btn:hover {
+ color: white;
+ background-color: hotpink;
+ border-color: hotpink;
+}
+
+/* Apply shooting star animation */
+.shooting-star {
+ display: none;
+ position: absolute;
+ top: 0;
+ left: 0;
+ color: yellow;
+ font-size: 2rem;
+ animation: shooting-star 3s linear infinite;
+ opacity: 0;
+ z-index: 9999;
+}
+
+/* Easter egg container styles */
+.easter-egg-container {
+ position: fixed;
+ bottom: 2px;
+ left: 2px;
+ background-color: hotpink;
+ padding: 3px;
+ border-radius: 18px;
+ z-index: 9999;
+ opacity: 0;
+ transition: opacity 0.5s ease;
+}
+
+/* Show the Easter Egg on hover */
+.easter-egg-container:hover {
+ opacity: 1;
+}
+
+/* Easter egg text styles */
+.easter-egg-container p {
+ font-size: 10px;
+}
+
+/* Dark mode styles */
+body.dark-mode {
+ background-color: #1a1a1a !important;
+ color: #ffffff;
+}
+
+
+@keyframes shooting-star {
+ 0% {
+   transform: translateX(-100%) translateY(-100%);
+   opacity: 0;
+ }
+ 100% {
+   transform: translateX(100vw) translateY(100vh);
+   opacity: 1;
+ }
+}
+
+/* Responsiveness */
+
+@media (min-width: 700px) {
+ .header__wrapper .cols__container {
+   max-width: 1200px;
+   margin: 0 auto;
+   width: 90%;
+   justify-content: space-between;
+   display: grid;
+   grid-template-columns: 1fr 2fr;
+   gap: 50px;
+ }
+ .header__wrapper .cols__container .left__col {
+   padding: 25px 0px;
+ }
+ .header__wrapper .cols__container .right__col nav ul {
+   flex-direction: row;
+   gap: 30px;
+ }
+ .header__wrapper .cols__container .right__col .photos {
+   height: 365px;
+   overflow: auto;
+   padding: 0 0 30px;
+ }
+ .timeline {
+   margin: 30px auto;
+ }
+ .timeline::after {
+   left: 31px;
+ }
+ .timelinecontainer {
+   width: 100%;
+   padding-left: 80px;
+   padding-right: 25px;
+ }
+ .text-box {
+   padding: 20px 30px;
+   background: white;
+   position: relative;
+   border-radius: 6px;
+   font-size: 13px; 
+   display: flex;
+   flex-direction: column;
+   justify-content: center;
+   align-items: center;
+ }
+ .text-box p {
+   margin-bottom: 10px;
+ }
+ .image-container {
+   width: 100%;
+   height: auto;
+   display: flex;
+   justify-content: center;
+   align-items: center;
+   overflow: hidden;
+   margin-top: 10px;
+   padding: 10px 10px;
+ }
+ .text-box .image-container img {
+   max-width: 100%;
+   max-height: 300px;
+   object-fit: cover;
+   border-radius: 6px;
+   position: static;
+   width: auto;
+   right: auto;
+   top: auto;
+   z-index: auto;
+ }
+ .right-container {
+   left: 0;
+ }
+ .left-container img,
+ .right-container img {
+   left: 10px;
+ }
+ .left-container-arrow,
+ .right-container-arrow {
+   border-right: 15px solid white;
+   border-left: 0;
+   left: -15px;
+ }
+}
+
+/* @media (min-width: 1017px) {
+ .header__wrapper .cols__container .left__col {
+   margin: 0;
+   margin-right: auto;
+ }
+ .header__wrapper .cols__container .right__col nav {
+   flex-direction: row;
+ }
+ .header__wrapper .cols__container .right__col nav button {
+   margin-top: 0;
+ }
+ .timeline {
+ position: relative;
+ max-width: 1200px;
+ margin: 100px auto;
+ padding-top: 0px;
+}
+.timeline::after {
+ content: "";
+ position: absolute;
+ width: 6px;
+ height: 100%; 
+ background: black;
+ top: 0; 
+ left: 50%;
+ margin-left: -3px;
+ z-index: -1;
+ animation: moveline 4.5s linear forwards;
+}
+.timelinecontainer {
+ padding: 10px 50px;
+ position: relative;
+ width: 50%;
+ animation: movedown 1s linear forwards;
+ opacity: 0;
+}
+.text-box {
+ padding: 20px 30px;
+ background: #fff;
+ position: relative;
+ border-radius: 6px;
+ font-size: 15px;
+ display: flex;
+ flex-direction: column;
+ justify-content: center;
+ align-items: center;
+}
+.text-box p {
+ display: inline-block;
+ margin: 15px;
+}
+.image-container {
+ width: 100%;
+ height: auto;
+ display: flex;
+ justify-content: center;
+ align-items: center;
+ overflow: hidden;
+ margin-top: 10px;
+ padding: 10px 10px;
+}
+.text-box .image-container img {
+ max-width: 100%;
+ max-height: 300px;
+ object-fit: cover;
+ border-radius: 6px;
+ position: static;
+ width: auto;
+ right: auto;
+ top: auto;
+ z-index: auto;
+}
+.left-container {
+ left: 0;
+}
+
+.right-container {
+ left: 50%;
+}
+.left-container-arrow {
+ height: 0;
+ width: 0;
+ position: absolute;
+ top: 28px;
+ z-index: 1;
+ border-top: 15px solid transparent;
+ border-bottom: 15px solid transparent;
+ border-left: 15px solid white;
+ right: -15px;
+}
+.right-container-arrow {
+ height: 0;
+ width: 0;
+ position: absolute;
+ top: 28px;
+ z-index: 1;
+ border-top: 15px solid transparent;
+ border-bottom: 15px solid transparent;
+ border-right: 15px solid white;
+ left: -15px;
+} 
+
+} */
+
+</style>
 </head>
 
+<%- include("templates/header") %>
 <body>
-    <%- include("templates/header") %>
-    <div class="container">
+   <div class="shooting-star"><i class="fas fa-star"></i></div>
+   <div class="header__wrapper">
+     <header></header>
+     <div class="cols__container">
+       <div class="left__col">
+         <div class="img__container">
+           <img src="profilepic.jpg" alt="Anna Smith" />
+           <button type="button" class="btn btn-outline-dark btn-sm m-3" onclick="location.href='/editProfile'">Edit</button>
 
-        <div class="row align-items-center">
-            <div class="col-xl-12 col-lg-12 col-md-12 col-12">
-                <!-- Bg -->
-                <div class="pt-20 rounded-top" style="background:
-              url(https://bootdey.com/image/480x720/00FFFF/000000) no-repeat;
-              background-size: cover;
-              height: 300px;">
-                </div>
-                <div class="card rounded-bottom smooth-shadow-sm">
-                    <div class="d-flex align-items-center justify-content-between
-                pt-4 pb-6 px-4">
-                        <div class="d-flex align-items-center">
-                            <div class="avatar-xxl avatar-indicators avatar-online me-2
-                    position-relative d-flex justify-content-end
-                    align-items-end mt-n10">
-                                <img src="https://bootdey.com/img/Content/avatar/avatar8.png" class="avatar-xxl
-                    rounded-circle border border-2 " alt="Image">
-                            </div>
-                            <div class="lh-1">
-                                <h2 class="mb-0">Welcome, <%= username %>
-                                </h2>
-                                <p class="mb-0 d-block"><%= email %></p>
-                            </div>
-                        </div>
-                        <div>
-                            <a href="#" class="btn btn-outline-primary
-                    d-none d-md-block">Edit Profile</a>
+           <span></span>
+          </div>
+          
+          <h2>Welcome, <%= username %></h2>
+          <p><%= email %></p>
+          
+          <button type="button" class="btn btn-primary">Follow</button>
+          
+          <% if (capsules && capsules.length > 1) { %>
+          <ul class="about">
+            <li><span>200</span><a href="/friends">Follower</a></li>
+            <li><span><%= capsules.length %></span>Time Capsules</li>
+          </ul>
+          <% } else if(capsules && capsules.length <= 1){ %>
+            <ul class="about">
+              <li><span>200</span><a href="/friends">Follower</a></li>
+                <li><span><%= capsules.length %></span>Time Capsule</li>
+              </ul>
+            <% } %>
+
+          <div class="content">
+            <p>
+              Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam
+              erat volutpat. Morbi imperdiet, mauris ac auctor dictum, nisl
+              ligula egestas nulla.
+            </p>
+
+            <ul>
+              <li><i class="fab fa-twitter"></i></li>
+              <i class="fab fa-pinterest"></i>
+              <i class="fab fa-facebook"></i>
+              <i class="fab fa-dribbble"></i>
+            </ul>
+          </div>
+        </div>
+        <div class="right__col">
+            <h2 style="padding-top: 30px; padding-left: 70px; text-align: center;"><em>My Memories</em></h2>
+          <div class="timeline">
+            <% capsules.sort((a, b) => new Date(b.date) - new Date(a.date)); %>
+
+            <% for(let i = 0; i < capsules.length; i++) { %>
+                <% if(i % 2 === 0) { %>
+                  <div class="timelinecontainer right-container">
+                    <div class="text-box">
+                      <% if (capsules[i].lock == true) { %>
+                      <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>" style="pointer-events: none; color: gray;"><%- capsules[i].title %></a></h4>
+                      <% } else { %>
+                      <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>"><%- capsules[i].title %></a></h4>
+                      <% } %>
+                      <p><%- capsules[i].date %></p>
+                      <div class="image-container">
+                        <% if (capsules[i].images && capsules[i].images.length > 0) { %>
+                          <% if (capsules[i].images[0].type.startsWith('image/')) { %>
+                            <img src="<%- capsules[i].images[0].path %>" alt="Capsule Image">
+                          <% } else if (capsules[i].images[0].type.startsWith('video/')) { %>
+                            <video controls>
+                              <source src="<%- capsules[i].images[0].path %>" type="<%- capsules[i].images[0].type %>">
+                            </video>
+                          <% } %>
+                        <% } else { %>
+                          <p>No media available</p>
+                        <% } %>
+                      </div>
+                      <div class="button-container">
+                        <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
+                        <div class="lock">
+                            <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>">
+                                <label for="lockDate"></label>
+                                <% if (capsules[i].lock == false) { %> 
+                                    <label for="lockDate">Lock until: </label>
+                                    <input name="lockedUntil" type="date" name="lockDate" id="lockDate" placeholder="Lock Date" required>
+                                    <button type="submit" class="btn btn-outline-primary custom-btn ">Lock</button>
+                                <% } else { %>
+                                  <p> Locked Until: <%= capsules[i].lockedUntil %></p>
+                                    <button type="submit" class="btn btn-outline-primary custom-btn " >Unlock</button>
+                                <% } %>
+                            </form>
                         </div>
                     </div>
-                    <ul class="nav nav-lt-tab px-4" id="pills-tab" role="tablist">
-
-                        <li class="nav-item">
-                            <a class="nav-link active" href="#">  200 Followers </a>
-                        </li>
-
-                    </ul>
-                </div>
-            </div>
-        </div>
-        <div class="py-6">
-            <div class="row">
-                <div class="col-lg-4 col-12">
-                    <!-- card -->
-                    <% for(let i=0; i < capsules.length; i++) { %>
-                        <div class="card mb-5 rounded-3">
-                            <div>
-                                <img src="https://bootdey.com/image/480x180/191970/ffffff" alt="Image"
-                                    class="img-fluid rounded-top">
-                            </div>
-    
-                            <!-- card body -->
-                            <div class="card-body">
-                                <!-- Title -->
-                                <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>"><%- capsules[i].title %></a></h4>
-                                <p> <%- capsules[i].date %></p>
-                                <div>
-                                    <!-- Dropdown -->
-                                    <div class="d-flex justify-content-between
-                          align-items-center">
-                                        <a href="#!" class="btn btn-outline-primary custom-btn"><i class="fas fa-heart"></i>
-                                            Like</a>
-    
-    
-                                        <div class="dropdown dropstart">
-                                            <a href="#!" class="btn btn-ghost btn-icon btn-sm rounded-circle"
-                                                id="dropdownMenuOne" data-bs-toggle="dropdown" aria-haspopup="true"
-                                                aria-expanded="false">
-                                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                    viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                    class="feather feather-more-vertical icon-xs">
-                                                    <circle cx="12" cy="12" r="1"></circle>
-                                                    <circle cx="12" cy="5" r="1"></circle>
-                                                    <circle cx="12" cy="19" r="1"></circle>
-                                                </svg>
-                                            </a>
-                                            <div class="dropdown-menu" aria-labelledby="dropdownMenuOne">
-                                                <a class="dropdown-item d-flex align-items-center" href="#!"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="feather feather-file-text me-2 icon-xxs dropdown-item-icon">
-                                                        <path
-                                                            d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z">
-                                                        </path>
-                                                        <polyline points="14 2 14 8 20 8"></polyline>
-                                                        <line x1="16" y1="13" x2="8" y2="13"></line>
-                                                        <line x1="16" y1="17" x2="8" y2="17"></line>
-                                                        <polyline points="10 9 9 9 8 9"></polyline>
-                                                    </svg>Report</a>
-                                                <a class="dropdown-item d-flex align-items-center" href="#!"><svg
-                                                        xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                                        viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                                        stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
-                                                        class="feather feather-slash me-2 icon-xxs dropdown-item-icon">
-                                                        <circle cx="12" cy="12" r="10"></circle>
-                                                        <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-                                                    </svg>Block</a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+                      <span class="right-container-arrow"></span>
+                    </div>
+                  </div>
+                <% } else { %>
+                  <div class="timelinecontainer left-container">
+                    <div class="text-box">
+                      <% if (capsules[i].lock == true) { %>
+                      <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>" style="pointer-events: none; color: gray;"><%- capsules[i].title %></a></h4>
+                      <% } else { %>
+                      <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>"><%- capsules[i].title %></a></h4>
+                      <% } %>
+                      <p><%- capsules[i].date %></p>
+                      <div class="image-container">
+                        <% if (capsules[i].images && capsules[i].images.length > 0) { %>
+                          <% if (capsules[i].images[0].type.startsWith('image/')) { %>
+                            <img src="<%- capsules[i].images[0].path %>" alt="Capsule Image">
+                          <% } else if (capsules[i].images[0].type.startsWith('video/')) { %>
+                            <video controls>
+                              <source src="<%- capsules[i].images[0].path %>" type="<%- capsules[i].images[0].type %>">
+                            </video>
+                          <% } %>
+                        <% } else { %>
+                          <p>No media available</p>
+                        <% } %>
+                      </div>
+                      <div class="button-container">
+                        <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
+                        <div class="lock">
+                            <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>">
+                                <label for="lockDate"></label>
+                                <% if (capsules[i].lock == false) { %> 
+                                    <label for="lockDate">Lock until: </label>
+                                    <input name="lockedUntil" type="date" name="lockDate" id="lockDate" placeholder="Lock Date" required>
+                                    <button type="submit" class="btn btn-outline-primary custom-btn " >Lock</button>
+                                <% } else { %>
+                                    <button type="submit" class="btn btn-outline-primary custom-btn" >Unlock</button>
+                                <% } %>
+                            </form>
                         </div>
-                    <% } %>
-                </div>
-
-
-
-
-
-            </div>
+                    </div>
+                      <span class="left-container-arrow"></span>
+                    </div>
+                  </div>
+                <% } %>
+              <% } %>
+            
         </div>
+        </div>
+        <div class="easter-egg-container" id="darkModeToggle">
+          <p>Time Warp:
+              <br>Dark Mode Unleashed!🕰️|🐰
+          </p>
+      </div>
+      </div>
     </div>
-
-    <%- include("templates/footer") %>
+    <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const easterEgg = document.getElementById('darkModeToggle');
+          const shootingStar = document.querySelector('.shooting-star');
+      
+          // Function to show the shooting star
+          function showShootingStar() {
+              shootingStar.style.display = 'inline-block';
+          }
+      
+          // Function to hide the shooting star
+          function hideShootingStar() {
+              shootingStar.style.display = 'none';
+          }
+      
+          // Toggle dark mode
+          function toggleDarkMode() {
+              document.body.classList.toggle('dark-mode');
+          }
+      
+          // Show shooting star and toggle dark mode when hovering over the Easter egg container
+          easterEgg.addEventListener('mouseenter', function () {
+              showShootingStar();
+              toggleDarkMode();
+          });
+      
+          // Hide shooting star and toggle dark mode when mouse leaves the container
+          easterEgg.addEventListener('mouseleave', function () {
+              hideShootingStar();
+              toggleDarkMode();
+          });
+      });
+      </script>
+      <script>
+      document.addEventListener('DOMContentLoaded', function () {
+          const images = document.querySelectorAll('.timelinecontainer img');
+          images.forEach(img => {
+              console.log('Image src:', img.src);
+          });
+      });
+      </script>
+<%- include("templates/footer") %>
