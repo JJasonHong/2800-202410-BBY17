@@ -493,6 +493,7 @@ app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic'
   }
 });
 
+
 app.get("*", (req, res) => {
   res.status(404);
   res.send("Page not found - 404");
