@@ -745,7 +745,13 @@ body.dark-mode {
                   <div class="timelinecontainer right-container">
                     <!-- <img src="../public/favicon-16x16.png" alt="icon"> -->
                     <div class="text-box">
+                      <!-- disable link if capsule is lock == true -->
+                      <% if (capsules[i].lock == true) { %>
+                      <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>" style="pointer-events: none; color: gray;"><%- capsules[i].title %></a></h4>
+                      <% } else { %>
                       <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>"><%- capsules[i].title %></a></h4>
+                      <% } %>
+
                       <p><%- capsules[i].date %></p>
                       <div class="image-container">
                         <img src="<%- capsules[i].images[0] %>" alt="Capsule Image">

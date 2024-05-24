@@ -85,7 +85,7 @@ app.use(
 function getCurrentDate() {
   const currentDate = new Date();
   const date = currentDate.toISOString().split('T')[0];
-  // console.log("Current date: " + date);
+  console.log("Current date: " + date);
   return date;
 }
 
@@ -95,7 +95,7 @@ async function unlockCapsule() {
   const result = await capsuleCollection.find({ lockedUntil: { $lte: currentDate } }).project({user_id: 1, title: 1}).toArray();
   // console.log("unlockCapsule: ", result.map(item => item.lockedUntil));
   console.log(result);
-
+try {
   if (result.length == 0) {
     console.log("No capsules to unlock");
     return;
@@ -112,8 +112,14 @@ async function unlockCapsule() {
     console.log("get email from here:" + user[0].email);
 
     result.forEach(async (item) => {
-      console.log("Unlocking Capsule: ", item.title);
+      console.log("Unlocking Capsule ====> "+ item.title);
       await capsuleCollection.updateOne({ _id: item._id }, { $set: { lock: false, lockedUntil: null } });
+      function refreshMembers(req, res) {
+        if (sessionValidation) {
+          res.redirect('/members');
+        }
+      }
+      refreshMembers();
     });
 
     const transporter = nodemailer.createTransport({
@@ -138,13 +144,16 @@ async function unlockCapsule() {
     console.log("Message sent: %s", info.messageId);
 
   }
+} catch (err) {
+  console.error("Error unlocking capsule:", err);
+}
 }
 
   //Scheduler set up
   const schedule = require('node-schedule');
 
 //unlock capsule every ... seconds/mins/hours/days/months/years
-const job = schedule.scheduleJob('*/5 * * * * *', () => {
+const job = schedule.scheduleJob('*/10 * * * * *', () => {
   console.log('Running unlockCapsule job');
   unlockCapsule();
 });
@@ -293,7 +302,7 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
@@ -325,6 +334,7 @@ app.post('/upload', upload.array('images'), async (req, res) => {
       date: date,    // Date associated with the capsule
       images: images,  // Array of image paths
       user_id: user_id,  // ID of the user who uploaded the capsule
+      lock: false,  // Lock status of the capsule
     };
     await capsuleCollection.insertOne(newCapsule);
 
@@ -504,7 +514,7 @@ app.post('/lockUnlockCapsule', sessionValidation, async (req, res) => {
 console.log("Lock Status:" + result[0].lock);
   
 try {
-  if (result[0].lock === true) {
+  if (result[0].lock == true) {
     result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: false, lockedUntil: null}});
     console.log("Capsule unlocked");
     res.redirect('/members');
