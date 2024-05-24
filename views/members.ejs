@@ -683,7 +683,6 @@ body.dark-mode {
 </style>
 </head>
 
-<body>
 <%- include("templates/header") %>
 <body>
     <div class="shooting-star"><i class="fas fa-star"></i></div>
@@ -701,10 +700,9 @@ body.dark-mode {
           <h2>Welcome, <%= username %></h2>
           <p><%= email %></p>
           
-          
           <button type="button" class="btn btn-primary">Follow</button>
           
-        <% if (capsules && capsules.length > 1) { %>
+          <% if (capsules && capsules.length > 1) { %>
           <ul class="about">
             <li><span>200</span><a href="/friends">Follower</a></li>
             <li><span><%= capsules.length %></span>Time Capsules</li>
@@ -715,7 +713,6 @@ body.dark-mode {
                 <li><span><%= capsules.length %></span>Time Capsule</li>
               </ul>
             <% } %>
-
 
           <div class="content">
             <p>
@@ -733,28 +730,32 @@ body.dark-mode {
           </div>
         </div>
         <div class="right__col">
-
             <h2 style="padding-top: 30px; padding-left: 70px; text-align: center;"><em>My Memories</em></h2>
           <div class="timeline">
-
-            <!-- Sort capsules array by date in ascending order -->
             <% capsules.sort((a, b) => new Date(b.date) - new Date(a.date)); %>
 
             <% for(let i = 0; i < capsules.length; i++) { %>
                 <% if(i % 2 === 0) { %>
                   <div class="timelinecontainer right-container">
-                    <!-- <img src="../public/favicon-16x16.png" alt="icon"> -->
                     <div class="text-box">
-                      <!-- disable link if capsule is lock == true -->
                       <% if (capsules[i].lock == true) { %>
                       <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>" style="pointer-events: none; color: gray;"><%- capsules[i].title %></a></h4>
                       <% } else { %>
                       <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>"><%- capsules[i].title %></a></h4>
                       <% } %>
-
                       <p><%- capsules[i].date %></p>
                       <div class="image-container">
-                        <img src="<%- capsules[i].images[0] %>" alt="Capsule Image">
+                        <% if (capsules[i].images && capsules[i].images.length > 0) { %>
+                          <% if (capsules[i].images[0].type.startsWith('image/')) { %>
+                            <img src="<%- capsules[i].images[0].url %>" alt="Capsule Image">
+                          <% } else if (capsules[i].images[0].type.startsWith('video/')) { %>
+                            <video controls>
+                              <source src="<%- capsules[i].images[0].url %>" type="<%- capsules[i].images[0].type %>">
+                            </video>
+                          <% } %>
+                        <% } else { %>
+                          <p>No media available</p>
+                        <% } %>
                       </div>
                       <div class="button-container">
                         <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
@@ -772,18 +773,30 @@ body.dark-mode {
                             </form>
                         </div>
                     </div>
-                    
                       <span class="right-container-arrow"></span>
                     </div>
                   </div>
                 <% } else { %>
                   <div class="timelinecontainer left-container">
-                    <!-- <img src="../public/favicon-16x16.png" alt="icon"> -->
                     <div class="text-box">
+                      <% if (capsules[i].lock == true) { %>
+                      <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>" style="pointer-events: none; color: gray;"><%- capsules[i].title %></a></h4>
+                      <% } else { %>
                       <h4 class="mb-1"><a href="/openCapsule?id=<%- capsules[i]._id %>"><%- capsules[i].title %></a></h4>
+                      <% } %>
                       <p><%- capsules[i].date %></p>
                       <div class="image-container">
-                        <img src="<%- capsules[i].images[0] %>" alt="Capsule Image">
+                        <% if (capsules[i].images && capsules[i].images.length > 0) { %>
+                          <% if (capsules[i].images[0].type.startsWith('image/')) { %>
+                            <img src="<%- capsules[i].images[0].url %>" alt="Capsule Image">
+                          <% } else if (capsules[i].images[0].type.startsWith('video/')) { %>
+                            <video controls>
+                              <source src="<%- capsules[i].images[0].url %>" type="<%- capsules[i].images[0].type %>">
+                            </video>
+                          <% } %>
+                        <% } else { %>
+                          <p>No media available</p>
+                        <% } %>
                       </div>
                       <div class="button-container">
                         <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
@@ -800,7 +813,6 @@ body.dark-mode {
                             </form>
                         </div>
                     </div>
-                    
                       <span class="left-container-arrow"></span>
                     </div>
                   </div>
