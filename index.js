@@ -256,7 +256,7 @@ app.post("/loggingin", async (req, res) => {
 
   const result = await userCollection
     .find({ email: email })
-    .project({ email: 1, username: 1, password: 1, _id: 1 })
+    .project({ email: 1, name: 1, password: 1, _id: 1 })
     .toArray();
 
   if (result.length != 1) {
@@ -266,6 +266,7 @@ app.post("/loggingin", async (req, res) => {
   if (await bcrypt.compare(password, result[0].password)) {
     req.session.authenticated = true;
     req.session.email = result[0].email;
+    req.session.name = result[0].name;
     req.session.cookie.maxAge = expireTime;
     req.session.user_id = result[0]._id;
     return res.redirect("/loggedin");
@@ -292,14 +293,15 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1}).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
-  console.log(capsules);
+  console.log(capsules);  
   // Render the members page template with the data
-  res.render('members', { authenticated, username, email, capsules });
+  res.render('members', { authenticated, username, email, capsules});
 });
+
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
@@ -315,38 +317,23 @@ app.get('/createCapsule', sessionValidation, (req, res) => {
 //  handle image uploads
 app.post('/upload', upload.array('images'), async (req, res) => {
   try {
-    const { title, date, 'capsule-caption': capsuleCaption } = req.body;
+    const { title, date } = req.body;
     const user_id = req.session.user_id;
-
-    const captionsArray = req.body.captions || [];
-    const images = req.files.map((file, index) => {
-      const caption = captionsArray[index] || '';
-      return {
-        path: file.path,
-        caption: caption
-      };
-    });
-
-    console.log('Images Array:', images);
+    const images = req.files.map(file => file.path);    // Map the uploaded files to their paths
     const newCapsule = {
       title: title,  // Title of the capsule
       date: date,    // Date associated with the capsule
       images: images,  // Array of image paths
       user_id: user_id,  // ID of the user who uploaded the capsule
-      lock: false, // Lock status of the capsule
     };
     await capsuleCollection.insertOne(newCapsule);
+
     // Send a success response with a message
     res.json({ message: "Upload successful" });
   } catch (error) {
-    console.error(error);
     res.status(500).json({ message: "Upload failed" });
   }
 });
-
-
-
-
 
 app.get('/openCapsule', sessionValidation, async (req, res) => {
   //TODO: validate open date before giving user access
@@ -360,7 +347,7 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
     console.log("Capsule not found");
     //res.redirect('?invalid=1');
   } else {
-    res.render('openCapsule', { data: result });
+    res.render('openCapsule', {data: result});
   }
 });
 
