@@ -627,6 +627,62 @@ app.post("/removeFriend/:friendId", sessionValidation, async (req, res) => {
   }
 });
 
+app.get('/editProfile', sessionValidation, (req, res) => {
+  res.render('editProfile'); 
+});
+
+app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic' }]), async (req, res, next) => {
+  try {
+    const uploads = [];
+
+    if (req.files.profilePic) {
+      const profilePicStream = streamifier.createReadStream(req.files.profilePic[0].buffer);
+      const profilePicUpload = new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream((error, result) => {
+          if (error) {
+            console.error('Profile Pic Upload Error:', error);
+            reject(error);
+          } else {
+            console.log('Profile Pic Upload Success:', result);
+            resolve(result);
+          }
+        }).end(profilePicStream);
+      });
+      uploads.push(profilePicUpload);
+    }
+
+    if (req.files.backgroundPic) {
+      const backgroundPicStream = streamifier.createReadStream(req.files.backgroundPic[0].buffer);
+      const backgroundPicUpload = new Promise((resolve, reject) => {
+        cloudinary.uploader.upload_stream((error, result) => {
+          if (error) {
+            console.error('Background Pic Upload Error:', error);
+            reject(error);
+          } else {
+            console.log('Background Pic Upload Success:', result);
+            resolve(result);
+          }
+        }).end(backgroundPicStream);
+      });
+      uploads.push(backgroundPicUpload);
+    }
+
+    const results = await Promise.all(uploads);
+
+    const response = {
+      profilePicUrl: results[0]?.url,
+      backgroundPicUrl: results[1]?.url,
+      bio: req.body.bio
+    };
+
+    console.log('Upload Results:', response);
+    res.send('Profile updated successfully');
+  } catch (error) {
+    console.error('Error in /edit endpoint:', error);
+    res.status(500).send('An error occurred while updating the profile');
+  }
+});
+
 app.get("*", (req, res) => {
   res.status(404);
   res.send("Page not found - 404");
