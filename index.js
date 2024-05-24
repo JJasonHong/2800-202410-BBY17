@@ -302,7 +302,7 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
+  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1}).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });

@@ -767,6 +767,7 @@ body.dark-mode {
                                     <input name="lockedUntil" type="date" name="lockDate" id="lockDate" placeholder="Lock Date" required>
                                     <button type="submit" class="btn btn-outline-primary custom-btn ">Lock</button>
                                 <% } else { %>
+                                  <p> Locked Until: <%= capsules[i].lockedUntil %></p>
                                     <button type="submit" class="btn btn-outline-primary custom-btn " >Unlock</button>
                                 <% } %>
                             </form>
