@@ -704,12 +704,12 @@ body.dark-mode {
           
           <% if (capsules && capsules.length > 1) { %>
           <ul class="about">
-            <li><span>200</span><a href="/friends">Follower</a></li>
+            <li><span><%= users.friends.length %></span><a href="/friends">Follower</a></li>
             <li><span><%= capsules.length %></span>Time Capsules</li>
           </ul>
           <% } else if(capsules && capsules.length <= 1){ %>
             <ul class="about">
-              <li><span>200</span><a href="/friends">Follower</a></li>
+              <li><span><%= capsules.length %></span><a href="/friends">Follower</a></li>
                 <li><span><%= capsules.length %></span>Time Capsule</li>
               </ul>
             <% } %>
