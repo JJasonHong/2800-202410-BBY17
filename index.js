@@ -91,66 +91,67 @@ function getCurrentDate() {
 
 async function unlockCapsule() {
   const currentDate = getCurrentDate();
-  
-  const result = await capsuleCollection.find({ lockedUntil: { $lte: currentDate } }).project({user_id: 1, title: 1}).toArray();
+
+  const result = await capsuleCollection.find({ lockedUntil: { $lte: currentDate } }).project({ user_id: 1, title: 1 }).toArray();
   // console.log("unlockCapsule: ", result.map(item => item.lockedUntil));
   console.log(result);
-try {
-  if (result.length == 0) {
-    console.log("No capsules to unlock");
-    return;
-  } else {
-    
-    const capsuleNames = result.map(item => item.title);
-    console.log("Capsules to unlock: ", capsuleNames);
-    // const userIDs = result.map(item => item.user_id);
-    const userIDs = result[0].user_id;
-    console.log("User IDs: ", userIDs);
-    const userObjectID = new ObjectId(userIDs);
-        
-    const user = await userCollection.find({ _id: userObjectID }).project({ name: 1, email: 1 }).toArray();
-    console.log("get email from here:" + user[0].email);
+  try {
+    if (result.length == 0) {
+      console.log("No capsules to unlock");
+      return;
+    } else {
 
-    result.forEach(async (item) => {
-      console.log("Unlocking Capsule ====> "+ item.title);
-      await capsuleCollection.updateOne({ _id: item._id }, { $set: { lock: false, lockedUntil: null } });
-      function refreshMembers(req, res) {
-        if (sessionValidation) {
-          res.redirect('/members');
+      const capsuleNames = result.map(item => item.title);
+      console.log("Capsules to unlock: ", capsuleNames);
+      // const userIDs = result.map(item => item.user_id);
+      const userIDs = result[0].user_id;
+      console.log("User IDs: ", userIDs);
+      const userObjectID = new ObjectId(userIDs);
+
+      const user = await userCollection.find({ _id: userObjectID }).project({ name: 1, email: 1 }).toArray();
+      console.log("get email from here:" + user[0].email);
+
+      result.forEach(async (item) => {
+        console.log("Unlocking Capsule ====> " + item.title);
+        await capsuleCollection.updateOne({ _id: item._id }, { $set: { lock: false, lockedUntil: null } });
+        function refreshMembers(req, res) {
+          if (sessionValidation) {
+            res.redirect('/members');
+          }
         }
-      }
-      refreshMembers();
-    });
+        refreshMembers();
+      });
 
-    const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: "memorylanebby@gmail.com",
-        pass: "aqya efks nlpl ngtj",
-      },
-    });
+      const transporter = nodemailer.createTransport({
+        service: "Gmail",
+        host: "smtp.gmail.com",
+        port: 465,
+        secure: true,
+        auth: {
+          user: "memorylanebby@gmail.com",
+          pass: "aqya efks nlpl ngtj",
+        },
+      });
 
-    let info = await transporter.sendMail({
-      from: 'memorylanebby@gmail.com', // sender address
-      to: user[0].email, // list of receivers
-      subject: "NoReply - Memory Lane: Capsule Unlocked", // Subject line
-      // text: `Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.`,
-      html: `<h2>Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.<h2></br>
+      let info = await transporter.sendMail({
+        from: 'memorylanebby@gmail.com', // sender address
+        to: user[0].email, // list of receivers
+        subject: "NoReply - Memory Lane: Capsule Unlocked", // Subject line
+        // text: `Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.`,
+        html: `<h2>Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.<h2></br>
       <p><a href="https://two800-202410-bby17-q3pp.onrender.com">Click here</a> to sign in</p>`, // html body
-    });
-    console.log("Message sent: %s", info.messageId);
+      });
+      console.log("Message sent: %s", info.messageId);
 
+    }
+  } catch (err) {
+    console.error("Error unlocking capsule:", err);
   }
-} catch (err) {
-  console.error("Error unlocking capsule:", err);
-}
 }
 
-  //Scheduler set up
-  const schedule = require('node-schedule');
+//Scheduler set up
+const schedule = require('node-schedule');
+const { profile } = require("console");
 
 //unlock capsule every ... seconds/mins/hours/days/months/years
 const job = schedule.scheduleJob('*/10 * * * * *', () => {
@@ -302,13 +303,13 @@ app.get('/members', sessionValidation, async (req, res) => {
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1}).toArray();
+  const capsules = await capsuleCollection.find({ user_id: req.session.user_id }).project({ title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1 }).toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
-  console.log(capsules);  
+  console.log(capsules);
   // Render the members page template with the data
-  res.render('members', { authenticated, username, email, capsules});
+  res.render('members', { authenticated, username, email, capsules });
 });
 
 
@@ -365,14 +366,14 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID})
-    .project({title: 1, date: 1, images: 1, user_id: 1, capsuleCaption: 1, sections: 1}).toArray();
+  const result = await capsuleCollection.find({ _id: objID })
+    .project({ title: 1, date: 1, images: 1, user_id: 1, capsuleCaption: 1, sections: 1 }).toArray();
 
   if (result.length != 1) {
     console.log("Capsule not found");
     //res.redirect('?invalid=1');
   } else {
-    res.render('openCapsule', {data: result});
+    res.render('openCapsule', { data: result });
   }
 });
 
@@ -440,8 +441,8 @@ app.post("/sendOTP", async (req, res) => {
       from: 'memorylanebby@gmail.com', // sender address
       to: email, // list of receivers
       subject: "OTP for login", // Subject line
-      text: `Your OTP is ${OTP}`, // plain text body
-      html: `<b>Your OTP is ${OTP}</b>`, // html body
+      text: `Hello, <br>Your OTP to reset password for 'MemoryLane' is ${OTP}.`, // plain text body
+      html: `Hello, <br>Your OTP to reset password for 'MemoryLane' is <b>${OTP}</b>.<br> Thanks`, // html body
     });
 
     console.log("Message sent: %s", info.messageId);
@@ -525,25 +526,26 @@ app.post('/lockUnlockCapsule', sessionValidation, async (req, res) => {
   const capsuleID = req.query.id;
   const objID = new ObjectId(capsuleID);
   // console.log(objID);
-  let result = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1}).toArray();
-console.log("Lock Status:" + result[0].lock);
-  
-try {
-  if (result[0].lock == true) {
-    result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: false, lockedUntil: null}});
-    console.log("Capsule unlocked");
-    res.redirect('/members');
-    return;
-  } else {
-  result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: true, lockedUntil: formattedDate}});
-  console.log("Capsule locked");
-  res.redirect('/members');}
-} catch (err) {
-  console.error("Error locking capsule:", err);
+  let result = await capsuleCollection.find({ _id: objID }).project({ title: 1, date: 1, images: 1, user_id: 1, lock: 1 }).toArray();
+  console.log("Lock Status:" + result[0].lock);
 
-  // Render an error page if something goes wrong
-  res.status(500).render('error', { error: "Server error. Please try again later." });
-}
+  try {
+    if (result[0].lock == true) {
+      result = await capsuleCollection.updateOne({ _id: objID }, { $set: { lock: false, lockedUntil: null } });
+      console.log("Capsule unlocked");
+      res.redirect('/members');
+      return;
+    } else {
+      result = await capsuleCollection.updateOne({ _id: objID }, { $set: { lock: true, lockedUntil: formattedDate } });
+      console.log("Capsule locked");
+      res.redirect('/members');
+    }
+  } catch (err) {
+    console.error("Error locking capsule:", err);
+
+    // Render an error page if something goes wrong
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
 
 });
 
@@ -653,7 +655,7 @@ app.post("/removeFriend/:friendId", sessionValidation, async (req, res) => {
 });
 
 app.get('/editProfile', sessionValidation, (req, res) => {
-  res.render('editProfile'); 
+  res.render('editProfile');
 });
 
 app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic' }]), async (req, res, next) => {
@@ -708,9 +710,37 @@ app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic'
   }
 });
 
+app.get("/profile", async (req, res) => {
+  let friendId = req.query.id;
+  console.log("this is profile page:" + friendId);
+
+  try {
+    let objectId = new ObjectId(friendId);
+
+    let result = await capsuleCollection.find({ user_id: friendId })
+      .project({ _id: 1, title: 1, date: 1, images: 1 })
+      .toArray();
+
+    let userData = await userCollection.findOne({ _id: objectId }, { projection: { name: 1, email: 1, ProfileImage: 1, image: 1 } });
+    let username = userData ? userData.name : '';
+    let email = userData ? userData.email : '';
+    let profileImage = userData ? userData.ProfileImage : 'birthday.jpg';
+    let image = userData ? userData.image : 'background.jpg';
+    console.log(result);
+    console.log(username);
+    console.log(email);
+    console.log("Profile Image URL: ", profileImage);
+
+    res.render("profile", { result, username, email, profileImage, image });
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    res.status(500).send("Error fetching data");
+  }
+});
+
 app.get("*", (req, res) => {
   res.status(404);
-  res.send("Page not found - 404");
+  res.render("error");
 });
 
 app.listen(port, () => {
