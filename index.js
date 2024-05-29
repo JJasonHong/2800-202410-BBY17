@@ -226,7 +226,7 @@ app.post("/submitUser", async (req, res) => {
 
   const schema = Joi.object({
     name: Joi.string().max(30).required(),
-    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ["com", "net"] } }).required(),
+    email: Joi.string().email({ minDomainSegments: 2, tlds: { allow: ["com", "net", "ca"] } }).required(),
     password: Joi.string().min(3).max(50).required(),
   });
 
