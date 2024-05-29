@@ -84,8 +84,10 @@ app.use(
 //Get Current date
 function getCurrentDate() {
   const currentDate = new Date();
+  // console.log("Current date: " + currentDate);
   const date = currentDate.toISOString().split('T')[0];
-  console.log("Current date: " + date);
+  // console.log("date: " + date);
+
   return date;
 }
 
@@ -93,7 +95,7 @@ async function unlockCapsule() {
   const currentDate = getCurrentDate();
   
   const result = await capsuleCollection.find({ lockedUntil: { $lte: currentDate } }).project({user_id: 1, title: 1}).toArray();
-  // console.log("unlockCapsule: ", result.map(item => item.lockedUntil));
+
   console.log(result);
 try {
   if (result.length == 0) {
@@ -103,23 +105,15 @@ try {
     
     const capsuleNames = result.map(item => item.title);
     console.log("Capsules to unlock: ", capsuleNames);
-    // const userIDs = result.map(item => item.user_id);
     const userIDs = result[0].user_id;
     console.log("User IDs: ", userIDs);
     const userObjectID = new ObjectId(userIDs);
         
     const user = await userCollection.find({ _id: userObjectID }).project({ name: 1, email: 1 }).toArray();
-    console.log("get email from here:" + user[0].email);
 
     result.forEach(async (item) => {
       console.log("Unlocking Capsule ====> "+ item.title);
       await capsuleCollection.updateOne({ _id: item._id }, { $set: { lock: false, lockedUntil: null } });
-      function refreshMembers(req, res) {
-        if (sessionValidation) {
-          res.redirect('/members');
-        }
-      }
-      refreshMembers();
     });
 
     const transporter = nodemailer.createTransport({
@@ -136,8 +130,7 @@ try {
     let info = await transporter.sendMail({
       from: 'memorylanebby@gmail.com', // sender address
       to: user[0].email, // list of receivers
-      subject: "NoReply - Memory Lane: Capsule Unlocked", // Subject line
-      // text: `Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.`,
+      subject: "NoReply2 - Memory Lane: Capsule Unlocked", // Subject line
       html: `<h2>Hello ${user[0].name}, your capsule ${capsuleNames} has been unlocked.<h2></br>
       <p><a href="https://two800-202410-bby17-q3pp.onrender.com">Click here</a> to sign in</p>`, // html body
     });
@@ -149,10 +142,10 @@ try {
 }
 }
 
-  //Scheduler set up
-  const schedule = require('node-schedule');
+//Scheduler set up
+const schedule = require('node-schedule');
 
-//unlock capsule every ... seconds/mins/hours/days/months/years
+// unlock capsule every ... seconds/mins/hours/days/months/years
 const job = schedule.scheduleJob('*/10 * * * * *', () => {
   console.log('Running unlockCapsule job');
   unlockCapsule();
@@ -296,21 +289,28 @@ app.get("/loggedin", async (req, res) => {
   res.redirect("/members");
 });
 
+function deleteSessionMessage(message1, message2) {
+  delete message1;
+  delete message2;
+}
+
 app.get('/members', sessionValidation, async (req, res) => {
   // Retrieve the necessary data
   const authenticated = req.session.authenticated;
   const username = req.session.name;
   const email = req.session.email;
 
-  const capsules = await capsuleCollection.find({user_id: req.session.user_id}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1}).toArray();
+  const capsules = await capsuleCollection
+    .find({user_id: req.session.user_id})
+    .project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1})
+    .toArray();
   capsules.forEach((element) => {
     element._id = element._id.toString();
   });
-  console.log(capsules);  
   // Render the members page template with the data
-  res.render('members', { authenticated, username, email, capsules});
-});
+  res.render('members', { authenticated, username, email, capsules });
 
+});
 
 app.get("/logout", (req, res) => {
   req.session.destroy();
@@ -320,6 +320,12 @@ app.get("/logout", (req, res) => {
 app.get('/createCapsule', sessionValidation, (req, res) => {
   res.render('createCapsule');
 });
+
+
+app.post('/deletemessage', sessionValidation, async (req, res) => {
+  delete req.session.message;
+  res.json({ message: "Message deleted" });
+} );
 
 
 // code referenced from https://www.youtube.com/watch?v=3Gj_mL9JJ6k
@@ -516,7 +522,7 @@ app.post("/resetPassword/:OTP", async (req, res) => {
 app.post('/lockUnlockCapsule', sessionValidation, async (req, res) => {
   console.log("Locking Capsule");
   const lockedUntil = new Date(req.body.lockedUntil);
-  const date = lockedUntil.getDate();
+  const date = lockedUntil.getDate() + 1;
   const month = lockedUntil.getMonth() + 1; // Adding 1 to month since it is zero-based
   const year = lockedUntil.getFullYear();
 
@@ -529,15 +535,23 @@ app.post('/lockUnlockCapsule', sessionValidation, async (req, res) => {
 console.log("Lock Status:" + result[0].lock);
   
 try {
+  
   if (result[0].lock == true) {
     result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: false, lockedUntil: null}});
     console.log("Capsule unlocked");
+
     res.redirect('/members');
+    
     return;
   } else {
-  result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: true, lockedUntil: formattedDate}});
-  console.log("Capsule locked");
-  res.redirect('/members');}
+    result = await capsuleCollection.updateOne({_id: objID}, {$set: {lock: true, lockedUntil: formattedDate}});
+    let capsule = await capsuleCollection.find({_id: objID}).project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1}).toArray();
+    console.log("Capsule locked");
+  
+    res.redirect('/members');
+
+    return
+  }
 } catch (err) {
   console.error("Error locking capsule:", err);
 
