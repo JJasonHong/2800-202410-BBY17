@@ -38,9 +38,9 @@
         z-index: 900;
         cursor: zoom-out;
         position: fixed;
-        width: 60%;
+        width: 65%;
         left: 0; 
-        right: 0; 
+        right: 0;
         margin-left: auto; 
         margin-right: auto;
     }
@@ -96,15 +96,19 @@
                     var html;
                     if ("<%- data[0].images[i].type%>".startsWith("image/")) {
                         html = `<div class="row d-flex align-items-center justify-content-center my-3">
+                                    <figure class="figure">
                                         <img src=<%- data[0].images[i].path %> class="img" onclick='b("<%- data[0].images[i].path %>")'>
-                                        <p class="caption"><%- data[0].images[i].caption %></p>
+                                        <figcaption class="figure-caption caption text-center"><%- data[0].images[i].caption %></figcaption>
+                                    </figure>
                                 </div>`;
                     } else if ("<%- data[0].images[i].type%>".startsWith("video/")) {
                         html = `<div class="row d-flex align-items-center justify-content-center my-3">
-                                    <video class="video" controls onclick='b("<%- data[0].images[i].path %>")'>
-                                        <source src="<%- data[0].images[i].path %>" type="<%- data[0].images[i].type %>">
-                                    </video>
-                                    <p class="caption"><%- data[0].images[i].caption %></p>
+                                    <figure class="figure">
+                                        <video class="video" controls onclick='b("<%- data[0].images[i].path %>")'>
+                                            <source src="<%- data[0].images[i].path %>" type="<%- data[0].images[i].type %>">
+                                        </video>
+                                        <figcaption class="figure-caption caption text-center"><%- data[0].images[i].caption %></figcaption>
+                                    </figure>
                                 </div>`;
                     }
                         document.getElementById("section-"+<%- data[0].images[i].order %>).insertAdjacentHTML("beforeend", html);
