@@ -1,26 +1,33 @@
+
 require("dotenv").config();
 const express = require("express");
+
+
 const session = require("express-session");
 const MongoStore = require("connect-mongo");
 const bcrypt = require("bcrypt");
 const saltRounds = 12;
-
 const nodemailer = require('nodemailer');
-
 const cloudinary = require('cloudinary').v2;
 const multer = require('multer');
 const { CloudinaryStorage } = require('multer-storage-cloudinary');
 const MongoClient = require("mongodb").MongoClient;
-
 const Joi = require("joi");
 const path = require('path');
-const favicon = require('serve-favicon');
-const { get } = require("http");
+const {v4: uuid} = require('uuid');
+const streamifier = require('streamifier');
+const bodyParser = require('body-parser');
 const port = process.env.PORT || 3000;
 const app = express();
 
 app.use(express.static(__dirname + '/public'));
-app.use(express.urlencoded({ extended: false }));
+
+// Middleware to parse URL-encoded bodies (for form submissions)
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Middleware to parse JSON bodies
+app.use(bodyParser.json());
+
 
 const expireTime = 60 * 60 * 1000;
 
@@ -48,6 +55,7 @@ const storage = new CloudinaryStorage({
   },
 });
 const upload = multer({ storage: storage });
+const uploadNone = multer();
 
 const atlasURI = `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/${mongodb_database}`;
 var database = new MongoClient(atlasURI, {
@@ -298,21 +306,49 @@ app.get("/loggedin", async (req, res) => {
 });
 
 app.get('/members', sessionValidation, async (req, res) => {
-  // Retrieve the necessary data
-  const authenticated = req.session.authenticated;
-  const username = req.session.name;
-  const email = req.session.email;
+  try {
+    // Retrieve the necessary data
+    const authenticated = req.session.authenticated;
+    const username = req.session.name;
+    const email = req.session.email;
 
-  const capsules = await capsuleCollection
-    .find({user_id: req.session.user_id})
-    .project({title: 1, date: 1, images: 1, user_id: 1, lock: 1, lockedUntil: 1})
-    .toArray();
-  capsules.forEach((element) => {
-    element._id = element._id.toString();
-  });
-  // Render the members page template with the data
-  res.render('members', { authenticated, username, email, capsules });
+    // Find the user's capsules
+    const capsules = await capsuleCollection.find({ user_id: req.session.user_id }).project({
+      title: 1,
+      date: 1,
+      images: 1,
+      user_id: 1,
+      lock: 1,
+      lockedUntil: 1
+    }).toArray();
 
+    // Find the user document
+    const user = await userCollection.findOne({ _id: new ObjectId(req.session.user_id) });
+
+    if (!user) {
+      return res.status(404).send("User not found");
+    }
+
+    const friends = user.friends || [];
+    const profileImage = user.ProfileImage || 'default.jpg';
+    const backgroundImage = user.BGImage || 'background.jpg';
+    const userbio = user.bio || 'About me'
+
+    // Log the data for debugging
+    console.log(user);
+    console.log(capsules);
+
+    // Convert ObjectIds to strings
+    capsules.forEach((element) => {
+      element._id = element._id.toString();
+    });
+
+    // Render the members page template with the data
+    res.render('members', { authenticated, username, email, capsules, friends,  profileImage, backgroundImage, userbio});
+  } catch (error) {
+    console.error("Error fetching user data:", error);
+    res.status(500).send("Error fetching user data.");
+  }
 });
 
 app.get("/logout", (req, res) => {
@@ -670,90 +706,99 @@ app.post("/removeFriend/:friendId", sessionValidation, async (req, res) => {
     res.status(500).render('error', { error: "Server error. Please try again later." });
   }
 });
-
-app.get('/editProfile', sessionValidation, (req, res) => {
-  res.render('editProfile');
+app.get('/editLanding', (req, res) => {
+  
+  res.render('editLanding'); // Passing userId to the template
 });
 
-app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic' }]), async (req, res, next) => {
+// Server-side route to render the editProfile page
+app.get('/editProfile', (req, res) => {
+  const userId = req.session.user_id;
+  res.render('editProfile', { userId }); // Passing userId to the template
+});
+
+app.get('/editBG', (req, res) => {
+  const userId = req.session.user_id;
+  res.render('editBG', { userId }); // Passing userId to the template
+});
+
+app.get('/editBio', (req, res) => {
+  const userId = req.session.user_id;
+  const user = { bio: 'About yourself.' }; // Example user object with a default bio
+  res.render('editBio', { userId, user: user });
+});
+
+// Server-side route to handle the form submission
+app.post("/editProPic", upload.single('image'), async (req, res) => {
+  let imagePath;
   try {
-    const uploads = [];
+    const { id } = req.body; // Accessing the user_id field from the form
+    imagePath = req.file.path;
 
-    if (req.files.profilePic) {
-      const profilePicStream = streamifier.createReadStream(req.files.profilePic[0].buffer);
-      const profilePicUpload = new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream((error, result) => {
-          if (error) {
-            console.error('Profile Pic Upload Error:', error);
-            reject(error);
-          } else {
-            console.log('Profile Pic Upload Success:', result);
-            resolve(result);
-          }
-        }).end(profilePicStream);
-      });
-      uploads.push(profilePicUpload);
-    }
+    console.log('Received request to update user ID:', id);
+    console.log('Image path:', imagePath);
 
-    if (req.files.backgroundPic) {
-      const backgroundPicStream = streamifier.createReadStream(req.files.backgroundPic[0].buffer);
-      const backgroundPicUpload = new Promise((resolve, reject) => {
-        cloudinary.uploader.upload_stream((error, result) => {
-          if (error) {
-            console.error('Background Pic Upload Error:', error);
-            reject(error);
-          } else {
-            console.log('Background Pic Upload Success:', result);
-            resolve(result);
-          }
-        }).end(backgroundPicStream);
-      });
-      uploads.push(backgroundPicUpload);
-    }
+    const result = await userCollection.updateOne({ _id: new ObjectId(id) }, { $set: { ProfileImage: imagePath } });
 
-    const results = await Promise.all(uploads);
+    console.log('Update result:', result);
 
-    const response = {
-      profilePicUrl: results[0]?.url,
-      backgroundPicUrl: results[1]?.url,
-      bio: req.body.bio
-    };
-
-    console.log('Upload Results:', response);
-    res.send('Profile updated successfully');
   } catch (error) {
-    console.error('Error in /edit endpoint:', error);
-    res.status(500).send('An error occurred while updating the profile');
+    console.error("Error updating profile:", error);
+    return res.status(500).send("Error updating profile.");
   }
+  
+  // Redirect regardless of success or failure of the update operation
+  res.redirect('/members');
 });
 
-app.get("/profile", async (req, res) => {
-  let friendId = req.query.id;
-  console.log("this is profile page:" + friendId);
+app.post("/editBackPic", upload.single('image'), async (req, res) => {
+  let imagePath;
+  try {
+    const { id } = req.body; // Accessing the user_id field from the form
+    imagePath = req.file.path;
+
+    console.log('Received request to update user ID:', id);
+    console.log('Image path:', imagePath);
+
+    const result = await userCollection.updateOne({ _id: new ObjectId(id) }, { $set: { BGImage: imagePath } });
+
+    console.log('Update result:', result);
+
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    return res.status(500).send("Error updating profile.");
+  }
+  
+  // Redirect regardless of success or failure of the update operation
+  res.redirect('/members');
+});
+
+app.post('/editAbout', uploadNone.none(), async (req, res) => {
+  const userId = req.body.userId;
+  const bio = req.body.bio;
+
+  // Check if userId and bio are present
+  if (!userId || !bio) {
+    return res.status(400).send('User ID and Bio are required.');
+  }
 
   try {
-    let objectId = new ObjectId(friendId);
+    // Update the user's bio in your database
+    const result = await userCollection.updateOne({ _id: new ObjectId(userId) }, { $set: { bio: bio } });
+    console.log('Update result:', result);
 
-    let result = await capsuleCollection.find({ user_id: friendId })
-      .project({ _id: 1, title: 1, date: 1, images: 1 })
-      .toArray();
-
-    let userData = await userCollection.findOne({ _id: objectId }, { projection: { name: 1, email: 1, ProfileImage: 1, image: 1 } });
-    let username = userData ? userData.name : '';
-    let email = userData ? userData.email : '';
-    let profileImage = userData ? userData.ProfileImage : 'birthday.jpg';
-    let image = userData ? userData.image : 'background.jpg';
-    console.log(result);
-    console.log(username);
-    console.log(email);
-    console.log("Profile Image URL: ", profileImage);
-
-    res.render("profile", { result, username, email, profileImage, image });
-  } catch (err) {
-    console.error("Error fetching data:", err);
-    res.status(500).send("Error fetching data");
+    res.send('Bio updated successfully');
+  } catch (error) {
+    console.error('Error updating bio:', error);
+    res.status(500).send('Internal server error');
   }
 });
+
+
+
+
+
+
 
 app.get("*", (req, res) => {
   res.status(404);

@@ -1,0 +1,123 @@
+<link
+      href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
+      rel="stylesheet"
+    />
+    
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Poppins", sans-serif;
+      }
+
+      :root {
+        --blue: #0071ff;
+        --light-blue: #b6dbf6;
+        --dark-blue: #005dd1;
+        --grey: #f2f2f2;
+      }
+
+      body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 100vh;
+        background: var(--light-blue);
+      }
+
+      .container {
+        max-width: 700px;
+        height: 300px;
+        width: 100%;
+        background: whitesmoke;
+        padding: 30px;
+        border-radius: 30px;
+      }
+
+      .form-group {
+        margin-bottom: 20px;
+      }
+
+      .form-group label {
+        display: block;
+        margin-bottom: 8px;
+        font-weight: 500;
+      }
+
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border-radius: 10px;
+        border: 1px solid var(--grey);
+        font-size: 14px;
+        font-family: "Poppins", sans-serif;
+      }
+
+      .btn-primary {
+        display: block;
+        width: 100%;
+        padding: 16px 0;
+        border-radius: 15px;
+        background: var(--blue);
+        color: #fff;
+        font-weight: 500;
+        font-size: 16px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+      }
+
+      .btn-primary:hover {
+        background: var(--dark-blue);
+      }
+    </style>
+  </head>
+  <body>
+    <% include("templates/header") %>
+
+    <div class="container">
+      <h2 class="pt-4">Edit Bio</h2>
+      <form id="editAboutForm" action="/editAbout" method="post">
+        <input type="hidden" id="userId" name="userId" value="<%= userId %>" />
+        <div class="form-group">
+
+          <textarea class="form-control" id="bio" name="bio" rows="5"><%= user.bio %></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Save Changes</button>
+      </form>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', () => {
+        const form = document.querySelector('#editAboutForm');
+        form.addEventListener('submit', async (e) => {
+          e.preventDefault();
+
+          const formData = new FormData(form);
+
+          try {
+            const response = await fetch('/editAbout', {
+              method: 'POST',
+              body: formData
+            });
+
+            if (response.ok) {
+              console.log('Bio updated successfully');
+              window.location.href = '/members'; // Redirect to members page
+            } else {
+              const errorMessage = await response.text();
+              console.error('Failed to update bio:', errorMessage);
+            }
+          } catch (error) {
+            console.error('Error:', error);
+          }
+        });
+      });
+    </script>
+
+    <% include("templates/footer") %>
+  </body>
+</html>

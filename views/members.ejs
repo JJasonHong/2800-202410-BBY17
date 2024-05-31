@@ -28,8 +28,8 @@ a {
 .header__wrapper header {
  width: 100%;
  height: fit-content;
- background: url("background.jpg") no-repeat center/ cover;
- min-height: calc(100px + 15vw);
+ /* background: url("background.jpg") no-repeat center/ cover;
+ min-height: calc(100px + 15vw); */
 }
 
 .header__wrapper .cols__container .left__col {
@@ -69,12 +69,12 @@ a {
 .header__wrapper .cols__container .left__col h2 {
  margin-top: 100px;
  font-weight: 600;
- font-size: 22px;
+ font-size: 32px;
  margin-bottom: 5px;
  padding: 75px 10px 10px 10px;
 }
 .header__wrapper .cols__container .left__col p {
- font-size: 0.9rem;
+ font-size: 20pt;
  color: #818181;
  margin: 0;
  padding: 10px 5px;
@@ -88,7 +88,7 @@ a {
  display: flex;
  flex-direction: column;
  color: #818181;
- font-size: 0.9rem;
+ font-size: 1.2rem;
 }
 .header__wrapper .cols__container .left__col .about li span {
  color: #1d1d1d;
@@ -104,7 +104,7 @@ a {
  width: 100%;
 }
 .header__wrapper .cols__container .content p {
- font-size: 1rem;
+ font-size: 1.75rem;
  color: #1d1d1d;
  line-height: 1.8em;
 }
@@ -119,6 +119,16 @@ a {
 }
 .header__wrapper .cols__container .content ul i {
  font-size: 1.3rem;
+}
+.header__wrapper .cols__container .content ul a {
+  color: inherit; /* Inherit color from parent element */
+        text-decoration: none; /* Remove underline */
+        font-size: 24px; /* Adjust size as needed */
+        margin-right: 10px; /* Space between icons */
+        transition: color 0.3s ease; /* Smooth color transition */
+}
+.header__wrapper .cols__container .content ul a:hover {
+  color: blue;
 }
 .header__wrapper .cols__container .right__col nav {
  display: flex;
@@ -163,7 +173,11 @@ a {
  height: 100%;
  object-fit: cover;
 }
-
+#memories{
+  padding-top: 30px;
+  padding-left: 70px;
+  text-align: center;
+}
 .timeline {
  position: relative;
  max-width: 1200px;
@@ -575,7 +589,44 @@ body.dark-mode {
    left: -15px;
  }
 }
-
+@media screen and (max-width: 700px) {
+    #memories{
+      padding-top: 10px;
+      padding-right: 70px;
+      padding-bottom: 10px;
+      text-align: center;
+    }
+    .timeline {
+        position: absolute;
+        left: 0;
+        margin: 0;
+    }
+    .timeline::after {
+        left: 40px; /* Adjust as needed to align with your timeline markers */
+    }
+    .timelinecontainer {
+        width: calc(100% - 20px); /* Adjust as needed to avoid overflow */
+        padding-left: 30px;
+    }
+    .text-box {
+        font-size: 13px;
+    }
+    .text-box small {
+        margin-bottom: 10px;
+    }
+    .left-container, .right-container {
+        left: 40px;
+        width: calc(100% - 40px);
+    }
+    .left-container img, .right-container img {
+        left: 10px;
+    }
+    .left-container-arrow, .right-container-arrow {
+        border-right: 15px solid #fff;
+        border-left: 0;
+        left: -15px;
+    }
+}
 /* @media (min-width: 1017px) {
  .header__wrapper .cols__container .left__col {
    margin: 0;
@@ -687,12 +738,17 @@ body.dark-mode {
 <body>
    <div class="shooting-star"><i class="fas fa-star"></i></div>
    <div class="header__wrapper">
-     <header></header>
+    <header style="background: url('<%= backgroundImage %>') no-repeat center/cover; min-height: calc(100px + 15vw);">
+      <!-- Header content -->
+    </header>
      <div class="cols__container">
        <div class="left__col">
          <div class="img__container">
-           <img src="profilepic.jpg" alt="Anna Smith" />
-           <button type="button" class="btn btn-outline-dark btn-sm m-3" onclick="location.href='/editProfile'">Edit</button>
+    
+          <img src="<%= profileImage %>" alt="Profile Image">
+         
+
+           <button type="button" class="btn btn-outline-dark btn-sm m-3" onclick="location.href='/editLanding'">Edit</button>
 
            <span></span>
           </div>
@@ -700,37 +756,51 @@ body.dark-mode {
           <h2><%= username %></h2>
           <p><%= email %></p>
           
-          <button type="button" class="btn btn-primary">Follow</button>
+          
           
           <% if (capsules && capsules.length > 1) { %>
           <ul class="about">
-            <li><span><%= users.friends.length %></span><a href="/friends">Follower</a></li>
+            <li><span><%= friends.length %></span><a href="/friends">Follower</a></li>
             <li><span><%= capsules.length %></span>Time Capsules</li>
           </ul>
           <% } else if(capsules && capsules.length <= 1){ %>
             <ul class="about">
-              <li><span><%= capsules.length %></span><a href="/friends">Follower</a></li>
+              <li><span><%= friends.length %></span><a href="/friends">Follower</a></li>
                 <li><span><%= capsules.length %></span>Time Capsule</li>
               </ul>
             <% } %>
 
           <div class="content">
             <p>
-              Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam
-              erat volutpat. Morbi imperdiet, mauris ac auctor dictum, nisl
-              ligula egestas nulla.
+              <%= userbio %>
             </p>
 
             <ul>
-              <li><i class="fab fa-twitter"></i></li>
-              <i class="fab fa-pinterest"></i>
-              <i class="fab fa-facebook"></i>
-              <i class="fab fa-dribbble"></i>
+              <li>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-twitter"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-pinterest"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-facebook"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://dribbble.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-dribbble"></i>
+                </a>
+              </li>
             </ul>
           </div>
         </div>
         <div class="right__col">
-            <h2 style="padding-top: 30px; padding-left: 70px; text-align: center;"><em>My Memories</em></h2>
+            <h2 id="memories"><em>My Memories</em></h2>
           <div class="timeline">
             <% capsules.sort((a, b) => new Date(b.date) - new Date(a.date)); %>
 
@@ -758,7 +828,7 @@ body.dark-mode {
                         <% } %>
                       </div>
                       <div class="button-container">
-                        <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
+                        
                         <div class="lock">
                             <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>" id="lockUnlock">
                                 <label for="lockDate"></label>
