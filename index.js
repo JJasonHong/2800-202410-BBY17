@@ -237,7 +237,9 @@ app.get("/nosql-injection", async (req, res) => {
 
   res.send(`<h1>Hello ${username}</h1>`);
 });
-
+/**
+ * I used the code of my web dev assignment-2
+ */
 app.post("/submitUser", async (req, res) => {
   const { name, email, password } = req.body;
 
@@ -319,7 +321,7 @@ app.get("/loggedin", async (req, res) => {
 
 app.get('/members', sessionValidation, async (req, res) => {
   try {
-    // Retrieve the necessary data
+    
     const authenticated = req.session.authenticated;
     const username = req.session.name;
     const email = req.session.email;
@@ -346,7 +348,7 @@ app.get('/members', sessionValidation, async (req, res) => {
     const backgroundImage = user.BGImage || 'background.jpg';
     const userbio = user.bio || 'About me'
 
-    // Log the data for debugging
+    
     console.log(user);
     console.log(capsules);
 
@@ -355,7 +357,7 @@ app.get('/members', sessionValidation, async (req, res) => {
       element._id = element._id.toString();
     });
 
-    // Render the members page template with the data
+    
     res.render('members', { authenticated, username, email, capsules, friends,  profileImage, backgroundImage, userbio});
   } catch (error) {
     console.error("Error fetching user data:", error);
@@ -363,6 +365,8 @@ app.get('/members', sessionValidation, async (req, res) => {
   }
 });
 
+// Destroy the session and redirect to the home page
+// code referenced from COMP2537 assignment 2
 app.get("/logout", (req, res) => {
   req.session.destroy();
   res.redirect("/");
@@ -721,31 +725,31 @@ app.post("/removeFriend/:friendId", sessionValidation, async (req, res) => {
 });
 app.get('/editLanding', (req, res) => {
   
-  res.render('editLanding'); // Passing userId to the template
+  res.render('editLanding'); 
 });
 
-// Server-side route to render the editProfile page
+
 app.get('/editProfile', (req, res) => {
   const userId = req.session.user_id;
-  res.render('editProfile', { userId }); // Passing userId to the template
+  res.render('editProfile', { userId }); 
 });
 
 app.get('/editBG', (req, res) => {
   const userId = req.session.user_id;
-  res.render('editBG', { userId }); // Passing userId to the template
+  res.render('editBG', { userId }); 
 });
 
 app.get('/editBio', (req, res) => {
   const userId = req.session.user_id;
-  const user = { bio: 'About yourself.' }; // Example user object with a default bio
+  const user = { bio: 'About yourself.' }; 
   res.render('editBio', { userId, user: user });
 });
 
-// Server-side route to handle the form submission
+
 app.post("/editProPic", upload.single('image'), async (req, res) => {
   let imagePath;
   try {
-    const { id } = req.body; // Accessing the user_id field from the form
+    const { id } = req.body; 
     imagePath = req.file.path;
 
     console.log('Received request to update user ID:', id);
@@ -760,14 +764,14 @@ app.post("/editProPic", upload.single('image'), async (req, res) => {
     return res.status(500).send("Error updating profile.");
   }
   
-  // Redirect regardless of success or failure of the update operation
+  
   res.redirect('/members');
 });
 
 app.post("/editBackPic", upload.single('image'), async (req, res) => {
   let imagePath;
   try {
-    const { id } = req.body; // Accessing the user_id field from the form
+    const { id } = req.body; 
     imagePath = req.file.path;
 
     console.log('Received request to update user ID:', id);
@@ -782,7 +786,7 @@ app.post("/editBackPic", upload.single('image'), async (req, res) => {
     return res.status(500).send("Error updating profile.");
   }
   
-  // Redirect regardless of success or failure of the update operation
+  
   res.redirect('/members');
 });
 
@@ -790,7 +794,7 @@ app.post('/editAbout', uploadNone.none(), async (req, res) => {
   const userId = req.body.userId;
   const bio = req.body.bio;
 
-  // Check if userId and bio are present
+  
   if (!userId || !bio) {
     return res.status(400).send('User ID and Bio are required.');
   }
