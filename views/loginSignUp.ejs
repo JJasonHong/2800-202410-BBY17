@@ -7,6 +7,12 @@
         box-sizing: border-box;
         font-family: 'Montserrat', sans-serif;
     }
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: 'Montserrat', sans-serif;
+    }
 
     body {
         background-color: #c9d6ff;
@@ -18,48 +24,48 @@
         height: 100vh;
     }
 
-    .container {
-        background-color: #fff;
-        border-radius: 30px;
-        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
-        position: relative;
-        overflow: hidden;
-        width: 768px;
-        max-width: 100%;
-        min-height: 480px;
-    }
+.container{
+background-color: #fff;
+border-radius: 30px;
+box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
+position: relative;
+overflow: hidden;
+width: 768px;
+max-width: 100%;
+min-height: 480px;
+}
 
-    .container p {
-        font-size: 14px;
-        line-height: 20px;
-        letter-spacing: 0.3px;
-        margin: 20px 0;
-    }
+.container p{
+font-size: 14px;
+line-height: 20px;
+letter-spacing: 0.3px;
+margin: 20px 0;
+}
 
     .container span {
         font-size: 12px;
     }
 
-    .container a {
-        color: #333;
-        font-size: 13px;
-        text-decoration: none;
-        margin: 15px 0 10px;
-    }
+.container a{
+color: #333;
+font-size: 13px;
+text-decoration: none;
+margin: 15px 0 10px;
+}
 
-    .container button {
-        background-color: #512da8;
-        color: #fff;
-        font-size: 12px;
-        padding: 10px 45px;
-        border: 1px solid transparent;
-        border-radius: 8px;
-        font-weight: 600;
-        letter-spacing: 0.5px;
-        text-transform: uppercase;
-        margin-top: 10px;
-        cursor: pointer;
-    }
+.container button{
+background-color: #512da8;
+color: #fff;
+font-size: 12px;
+padding: 10px 45px;
+border: 1px solid transparent;
+border-radius: 8px;
+font-weight: 600;
+letter-spacing: 0.5px;
+text-transform: uppercase;
+margin-top: 10px;
+cursor: pointer;
+}
 
     .container button.hidden {
         background-color: transparent;
@@ -214,64 +220,59 @@
         transform: translateX(200%);
     }
 </style>
-<!DOCTYPE html>
-<html lang="en">
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
+<%- include("templates/header") %>
 
-<body>
-    <%- include("templates/header") %>
-        <div class="container" id="container">
-            <div class="form-container sign-up">
-                <form action="/submitUser" method="post">
-                    <h1>Create Account</h1>
-                    <div class="social-icons">
-                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                    </div>
-                    <span>or use your email for registeration</span>
-                    <input name="name" type="text" placeholder="Name">
-                    <input name="email" type="email" placeholder="Email">
-                    <input name="password" type="password" placeholder="Password">
-                    <button>Sign Up</button>
-                </form>
+<!-- Add this code where you want to display validation errors -->
+
+<div class="container" id="container">
+    <div class="form-container sign-up">
+        <form action="/submitUser" method="post">
+            <h1>Create Account</h1>
+            <div class="social-icons">
+                <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
             </div>
-            <div class="form-container sign-in">
-                <form action='/loggingin' method='post'>
-                    <h1>Sign In</h1>
-                    <div class="social-icons">
-                        <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
-                        <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
-                    </div>
-                    <span>or use your email password</span>
-                    <input name="email" type="email" placeholder="Email">
-                    <input name="password" type="password" placeholder="Password">
-                    <a href="forgotPassword">Forget Your Password?</a>
-                    <button>Sign In</button>
-                </form>
+            <span>or use your email for registeration</span>
+            <input name="name" type="text" placeholder="Name">
+            <input name="email" type="email" placeholder="Email">
+            <input name="password" type="password" placeholder="Password">              
+            <button>Sign Up</button>
+        </form>
+    </div>
+    <div class="form-container sign-in">
+        <form action='/loggingin' method='post'>
+            <h1>Sign In</h1>
+            <div class="social-icons">
+                <a href="#" class="icon"><i class="fa-brands fa-google-plus-g"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-facebook-f"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-github"></i></a>
+                <a href="#" class="icon"><i class="fa-brands fa-linkedin-in"></i></a>
             </div>
-            <div class="toggle-container">
-                <div class="toggle">
-                    <div class="toggle-panel toggle-left">
-                        <h1>Welcome Back!</h1>
-                        <p>Enter your personal details to use all of site features</p>
-                        <button class="hidden" id="login">Sign In</button>
-                    </div>
-                    <div class="toggle-panel toggle-right">
-                        <h1>Hello, Friend!</h1>
-                        <p>Register with your personal details to use all of site features</p>
-                        <button class="hidden" id="register">Sign Up</button>
-                    </div>
-                </div>
+            <span>or use your email password</span>
+            <input name="email" type="email" placeholder="Email">
+            <input name="password" type="password" placeholder="Password">
+            <a href="forgotPassword">Forget Your Password?</a>
+            <button>Sign In</button>
+        </form>
+    </div>
+    <div class="toggle-container">
+        <div class="toggle">
+            <div class="toggle-panel toggle-left">
+                <h1>Welcome Back!</h1>
+                <p>Enter your personal details to use all of site features</p>
+                <button class="hidden" id="login">Sign In</button>
+            </div>
+            <div class="toggle-panel toggle-right">
+                <h1>Hello, Friend!</h1>
+                <p>Register with your personal details to use all of site features</p>
+                <button class="hidden" id="register">Sign Up</button>
             </div>
         </div>
+    </div>
+</div>
 
         <script src="/script.js"></script>
 </body>

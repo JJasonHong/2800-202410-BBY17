@@ -141,14 +141,15 @@ try {
     });
     console.log("Message sent: %s", info.messageId);
 
+    }
+  } catch (err) {
+    console.error("Error unlocking capsule:", err);
   }
-} catch (err) {
-  console.error("Error unlocking capsule:", err);
-}
 }
 
 //Scheduler set up
 const schedule = require('node-schedule');
+const { profile } = require("console");
 
 // unlock capsule every ... seconds/mins/hours/days/months/years
 // source: https://www.youtube.com/watch?v=Ezv30i47sDs
@@ -373,14 +374,14 @@ app.get('/openCapsule', sessionValidation, async (req, res) => {
   let capsuleID = req.query.id;
   //let capsuleID = new ObjectId("664787f4206421c9ebdb8fc1");
   objID = new ObjectId(capsuleID);
-  const result = await capsuleCollection.find({_id: objID})
-    .project({title: 1, date: 1, images: 1, user_id: 1, capsuleCaption: 1, sections: 1}).toArray();
+  const result = await capsuleCollection.find({ _id: objID })
+    .project({ title: 1, date: 1, images: 1, user_id: 1, capsuleCaption: 1, sections: 1 }).toArray();
 
   if (result.length != 1) {
     console.log("Capsule not found");
     //res.redirect('?invalid=1');
   } else {
-    res.render('openCapsule', {data: result});
+    res.render('openCapsule', { data: result });
   }
 });
 
@@ -434,9 +435,9 @@ app.post("/sendOTP", async (req, res) => {
     let info = await transporter.sendMail({
       from: process.env.NODEMAILER_EMAIL, // sender address
       to: email, // list of receivers
-      subject: "No Reply - Memory Lane OTP Request", // Subject line
-      html: `<h4>Your OTP is ${OTP}</h4>
-      <footer><p>Memory Lane Team</p></footer>`, // html body
+      subject: "OTP for login", // Subject line
+      text: `Hello, <br>Your OTP to reset password for 'MemoryLane' is ${OTP}.`, // plain text body
+      html: `Hello, <br>Your OTP to reset password for 'MemoryLane' is <b>${OTP}</b>.<br> Thanks`, // html body
     });
 
     console.log("Message sent: %s", info.messageId);
@@ -544,11 +545,26 @@ try {
 } catch (err) {
   console.error("Error locking capsule:", err);
 
-  // Render an error page if something goes wrong
-  res.status(500).render('error', { error: "Server error. Please try again later." });
-}
+  try {
+    if (result[0].lock == true) {
+      result = await capsuleCollection.updateOne({ _id: objID }, { $set: { lock: false, lockedUntil: null } });
+      console.log("Capsule unlocked");
+      res.redirect('/members');
+      return;
+    } else {
+      result = await capsuleCollection.updateOne({ _id: objID }, { $set: { lock: true, lockedUntil: formattedDate } });
+      console.log("Capsule locked");
+      res.redirect('/members');
+    }
+  } catch (err) {
+    console.error("Error locking capsule:", err);
 
+    // Render an error page if something goes wrong
+    res.status(500).render('error', { error: "Server error. Please try again later." });
+  }
+}
 });
+
 
 app.use(express.static(__dirname + '/public'));
 
@@ -656,7 +672,7 @@ app.post("/removeFriend/:friendId", sessionValidation, async (req, res) => {
 });
 
 app.get('/editProfile', sessionValidation, (req, res) => {
-  res.render('editProfile'); 
+  res.render('editProfile');
 });
 
 app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic' }]), async (req, res, next) => {
@@ -711,9 +727,37 @@ app.post('/edit', upload.fields([{ name: 'profilePic' }, { name: 'backgroundPic'
   }
 });
 
+app.get("/profile", async (req, res) => {
+  let friendId = req.query.id;
+  console.log("this is profile page:" + friendId);
+
+  try {
+    let objectId = new ObjectId(friendId);
+
+    let result = await capsuleCollection.find({ user_id: friendId })
+      .project({ _id: 1, title: 1, date: 1, images: 1 })
+      .toArray();
+
+    let userData = await userCollection.findOne({ _id: objectId }, { projection: { name: 1, email: 1, ProfileImage: 1, image: 1 } });
+    let username = userData ? userData.name : '';
+    let email = userData ? userData.email : '';
+    let profileImage = userData ? userData.ProfileImage : 'birthday.jpg';
+    let image = userData ? userData.image : 'background.jpg';
+    console.log(result);
+    console.log(username);
+    console.log(email);
+    console.log("Profile Image URL: ", profileImage);
+
+    res.render("profile", { result, username, email, profileImage, image });
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    res.status(500).send("Error fetching data");
+  }
+});
+
 app.get("*", (req, res) => {
   res.status(404);
-  res.send("Page not found - 404");
+  res.render("error");
 });
 
 app.listen(port, () => {
