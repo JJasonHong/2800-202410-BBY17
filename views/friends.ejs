@@ -1,46 +1,51 @@
 <style>
-     body {
-    background-color: #c9d6ff;
-    background: linear-gradient(to right, #e2e2e2, #c9d6ff);          
-    align-items: center;
-    justify-content: center;
-    height: 100vh;
+  body {
+    background-color: #fafafa;
+    font-family: 'Arial', sans-serif;
     margin: 0;
-    font-family: Arial, sans-serif;
+    padding: 0;
   }
 
   .container {
     max-width: 800px;
     margin: 0 auto;
     padding: 20px;
-    background-color: #c9d6ff;
-    background: linear-gradient(to right, #e2e2e2, #c9d6ff);
-    border-radius: 10px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
   }
 
-  h1 {
-    text-align: center;
-    color: #512da8;
+  .slider {
+    display: flex;
+    transition: transform 0.5s ease;
   }
 
-  .dropdown {
+  .page {
+    min-width: calc(100% + 20px); /* Add margin between pages */
+    margin-right: 20px; /* Space between pages */
+  }
+
+  .nav-buttons {
     text-align: center;
     margin-bottom: 20px;
   }
 
-  #listDropdown {
-    padding: 8px 15px;
+  .nav-button {
+    padding: 10px 15px;
     font-size: 16px;
     border: none;
     border-radius: 5px;
-    background-color: #5c6bc0;
+    background-color: #3897f0;
     color: #fff;
     cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+    margin: 0 5px;
   }
 
-  #listDropdown:hover {
-    background-color: #5c68ae;
+  .nav-button:hover {
+    background-color: #2a73b8;
   }
 
   .user-list,
@@ -51,106 +56,192 @@
 
   .user-item,
   .friend-item {
-    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
     padding: 10px;
-    background-color: #eee;
-    border-radius: 5px;
+    background-color: #f0f0f0;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
   }
 
   .user-item button,
   .friend-item button {
-    background-color: #5c6bc0;
+    background-color: #3897f0;
     color: #fff;
     border: none;
-    padding: 5px 10px;
+    padding: 8px 12px;
     border-radius: 3px;
     cursor: pointer;
   }
 
   .user-item button:hover,
   .friend-item button:hover {
-    background-color: #512da8;
-  }
-  .user-icon {
-    color: #37CDAC; /* Purple color for user icon */
-    margin-right: 5px; /* Add some spacing between icon and text */
+    background-color: #2a73b8;
   }
 
-  .friend-icon {
-    color: #64ACC5; /* Red color for friend icon */
-    margin-right: 5px; /* Add some spacing between icon and text */
+  .user-avatar,
+  .friend-avatar {
+    flex: 0 0 auto;
+    margin-right: 15px;
   }
 
-  /* Add custom styling for user and friend names */
-  .user-name {
-    color: #333; /* Black color for user name */
+  .user-avatar i,
+  .friend-avatar i {
+    font-size: 30px;
+    color: #37CDAC;
   }
 
+  .friend-avatar i {
+    color: #64ACC5;
+  }
+
+  .user-details,
+  .friend-details {
+    flex: 1 1 auto;
+  }
+
+  .user-name,
   .friend-name {
-    color: #333; /* Black color for friend name */
+    font-size: 18px;
+    color: #333;
+    text-decoration: none;
   }
+
+  .user-email,
+  .friend-email {
+    font-size: 14px;
+    color: #666;
+  }
+
+  .add-friend-form {
+    margin-left: auto;
+  }
+
+  .search-container {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+
+  #searchInput {
+    width: 100%;
+    max-width: 500px;
+    padding: 12px;
+    font-size: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+  }
+
+  .friend-link {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    color: inherit;
+    text-decoration: none;
+  }
+
+  .friend-link .friend-name {
+    margin-left: 10px;
+  }
+  .friend-list {
+  list-style: none;
+  padding: 0;
+  margin-right: 40px; /* Add padding on the right side */
+}
+
 </style>
+
 <%- include("templates/header") %>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-XXX" crossorigin="anonymous">
+
 <body>
   <div class="container">
-    <h1>Friends</h1>
-    
-    <!-- Dropdown menu to toggle between lists -->
-    <div class="dropdown">
-      <select id="listDropdown" onchange="toggleList()">
-        <option value="allUsers">All Users</option>
-        <option value="friends">My Friends</option>
-      </select>
+    <!-- Navigation buttons to toggle between lists -->
+    <div class="nav-buttons">
+      <button class="nav-button" onclick="showAllUsers()">All Users</button>
+      <button class="nav-button" onclick="showFriends()">My Friends</button>
     </div>
-    
-  <!-- List of Users -->
-<div id="allUsersList">
-    <h2>All Users:</h2>
-    <ul class="user-list">
-      <% allUsers.forEach(function(user) { %>
-        <li class="user-item">
-          <i class="fas fa-user user-icon"></i> <!-- User icon -->
-          <span class="user-name"><%= user.name %></span> (<%= user.email %>)
-          <form class="add-friend-form" action="/addFriend/<%= user._id %>" method="POST">
-            <button type="submit">Add Friend</button>
-          </form>
-        </li>
-      <% }); %>
-    </ul>
+    <div class="search-container">
+      <input type="text" id="searchInput" oninput="filterFriends()" placeholder="Search by name...">
+    </div>
+    <br>
+    <!-- Slider Container -->
+    <div class="slider" id="slider">
+      <!-- List of Users -->
+      <div id="allUsersPage" class="page">
+        <ul class="user-list">
+          <% allUsers.forEach(function(user) { %>
+            <li class="user-item">
+              <i class="fas fa-user user-icon"></i> <!-- User icon -->
+              <span class="user-name"><%= user.name %></span>
+              <form class="add-friend-form" action="/addFriend/<%= user._id %>" method="POST">
+                <button type="submit">Add Friend</button>
+              </form>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+      
+      <!-- List of Friends -->
+      <div id="friendsPage" class="page">
+        <ul class="friend-list">
+          <% friends.forEach(function(friend) { %>
+            <li class="friend-item">
+              <i class="fas fa-user-friends friend-icon"></i> <!-- Friend icon -->
+              <a href="/profile?id=<%= friend._id %>" class="friend-link">
+                <span class="friend-name"><%= friend.name %></span>
+              </a>
+              <form action="/removeFriend/<%= friend._id %>" method="POST">
+                <button type="submit">Remove</button>
+              </form>
+            </li>
+          <% }); %>
+        </ul>
+      </div>
+    </div>
   </div>
-  
-  <!-- List of Friends -->
-  <div id="friendsList" style="display: none;">
-    <h2>My Friends:</h2>
-    <ul class="friend-list">
-      <% friends.forEach(function(friend) { %>
-        <li class="friend-item">
-          <i class="fas fa-user-friends friend-icon"></i> <!-- Friend icon -->
-          <span class="friend-name"><%= friend.name %></span> (<%= friend.email %>)
-          <form action="/removeFriend/<%= friend._id %>" method="POST">
-            <button type="submit">Remove</button>
-          </form>
-        </li>
-      <% }); %>
-    </ul>
-  </div>
-<script>
-  function toggleList() {
-    var dropdown = document.getElementById("listDropdown");
-    var selectedValue = dropdown.options[dropdown.selectedIndex].value;
-    
-    var allUsersList = document.getElementById("allUsersList");
-    var friendsList = document.getElementById("friendsList");
-    
-    if (selectedValue === "allUsers") {
-      allUsersList.style.display = "block";
-      friendsList.style.display = "none";
-    } else if (selectedValue === "friends") {
-      allUsersList.style.display = "none";
-      friendsList.style.display = "block";
+
+  <script>
+    function showAllUsers() {
+      var slider = document.getElementById("slider");
+      slider.style.transform = "translateX(0)";
     }
-  }
-</script>
+
+    function showFriends() {
+      var slider = document.getElementById("slider");
+      slider.style.transform = "translateX(calc(-100% - 20px))";
+    }
+
+    function filterFriends() {
+      var input = document.getElementById('searchInput').value.toUpperCase();
+      var allUsersPage = document.getElementById('allUsersPage');
+      var friendsPage = document.getElementById('friendsPage');
+
+      // Filter through all users
+      var allUserItems = allUsersPage.getElementsByClassName('user-item');
+      for (var i = 0; i < allUserItems.length; i++) {
+        var userName = allUserItems[i].querySelector('.user-name');
+        if (userName.innerText.toUpperCase().indexOf(input) > -1) {
+          allUserItems[i].style.display = '';
+        } else {
+          allUserItems[i].style.display = 'none';
+        }
+      }
+
+      // Filter through friends
+      var friendItems = friendsPage.getElementsByClassName('friend-item');
+      for (var i = 0; i < friendItems.length; i++) {
+        var friendName = friendItems[i].querySelector('.friend-name');
+        if (friendName.innerText.toUpperCase().indexOf(input) > -1) {
+          friendItems[i].style.display = '';
+        } else {
+          friendItems[i].style.display = 'none';
+        }
+      }
+    }
+  </script>
 
 <%- include("templates/footer") %>

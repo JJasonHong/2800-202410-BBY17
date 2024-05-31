@@ -1,6 +1,7 @@
 
 
 <style>
+  /* css style referenced from https://www.youtube.com/watch?v=HrcpBtKe-Vg&t=22s&ab_channel=ProgrammerCloud*/
   @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 body {
  width: 100%;
@@ -28,8 +29,6 @@ a {
 .header__wrapper header {
  width: 100%;
  height: fit-content;
- background: url("background.jpg") no-repeat center/ cover;
- min-height: calc(100px + 15vw);
 }
 
 .header__wrapper .cols__container .left__col {
@@ -56,25 +55,16 @@ a {
  box-shadow: 1px 3px 12px rgba(0, 0, 0, 0.18);
  
 }
-/* .header__wrapper .cols__container .left__col .img__container span {
- position: absolute;
- background: #2afa6a;
- width: 16px;
- height: 16px;
- border-radius: 50%;
- bottom: 3px;
- right: 11px;
- border: 2px solid #fff;
-} */
+
 .header__wrapper .cols__container .left__col h2 {
  margin-top: 100px;
  font-weight: 600;
- font-size: 22px;
+ font-size: 32px;
  margin-bottom: 5px;
  padding: 75px 10px 10px 10px;
 }
 .header__wrapper .cols__container .left__col p {
- font-size: 0.9rem;
+ font-size: 20pt;
  color: #818181;
  margin: 0;
  padding: 10px 5px;
@@ -88,7 +78,7 @@ a {
  display: flex;
  flex-direction: column;
  color: #818181;
- font-size: 0.9rem;
+ font-size: 1.2rem;
 }
 .header__wrapper .cols__container .left__col .about li span {
  color: #1d1d1d;
@@ -104,7 +94,7 @@ a {
  width: 100%;
 }
 .header__wrapper .cols__container .content p {
- font-size: 1rem;
+ font-size: 1.75rem;
  color: #1d1d1d;
  line-height: 1.8em;
 }
@@ -119,6 +109,16 @@ a {
 }
 .header__wrapper .cols__container .content ul i {
  font-size: 1.3rem;
+}
+.header__wrapper .cols__container .content ul a {
+  color: inherit; 
+  text-decoration: none; 
+  font-size: 24px; 
+  margin-right: 10px; 
+  transition: color 0.3s ease; 
+}
+.header__wrapper .cols__container .content ul a:hover {
+  color: blue;
 }
 .header__wrapper .cols__container .right__col nav {
  display: flex;
@@ -163,7 +163,11 @@ a {
  height: 100%;
  object-fit: cover;
 }
-
+#memories{
+  padding-top: 30px;
+  padding-left: 70px;
+  text-align: center;
+}
 .timeline {
  position: relative;
  max-width: 1200px;
@@ -392,12 +396,12 @@ a {
 }
 .button-container {
     display: flex;
-    align-items: center; /* Optional: align items vertically in center */
+    align-items: center; /* vertically in center */
     gap: 5px;
 }
 
 .lock button{
-    margin-left: 10px; /* Optional: Add some space between the buttons */
+    margin-left: 10px; /* space between the buttons */
     margin-top: 11.75px;
 }
 
@@ -494,191 +498,147 @@ body.dark-mode {
 /* Responsiveness */
 
 @media (min-width: 700px) {
- .header__wrapper .cols__container {
-   max-width: 1200px;
-   margin: 0 auto;
-   width: 90%;
-   justify-content: space-between;
-   display: grid;
-   grid-template-columns: 1fr 2fr;
-   gap: 50px;
- }
- .header__wrapper .cols__container .left__col {
-   padding: 25px 0px;
- }
- .header__wrapper .cols__container .right__col nav ul {
-   flex-direction: row;
-   gap: 30px;
- }
- .header__wrapper .cols__container .right__col .photos {
-   height: 365px;
-   overflow: auto;
-   padding: 0 0 30px;
- }
- .timeline {
-   margin: 30px auto;
- }
- .timeline::after {
-   left: 31px;
- }
- .timelinecontainer {
-   width: 100%;
-   padding-left: 80px;
-   padding-right: 25px;
- }
- .text-box {
-   padding: 20px 30px;
-   background: white;
-   position: relative;
-   border-radius: 6px;
-   font-size: 13px; 
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
- }
- .text-box p {
-   margin-bottom: 10px;
- }
- .image-container {
-   width: 100%;
-   height: auto;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   overflow: hidden;
-   margin-top: 10px;
-   padding: 10px 10px;
- }
- .text-box .image-container img {
-   max-width: 100%;
-   max-height: 300px;
-   object-fit: cover;
-   border-radius: 6px;
-   position: static;
-   width: auto;
-   right: auto;
-   top: auto;
-   z-index: auto;
- }
- .right-container {
-   left: 0;
- }
- .left-container img,
- .right-container img {
-   left: 10px;
- }
- .left-container-arrow,
- .right-container-arrow {
-   border-right: 15px solid white;
-   border-left: 0;
-   left: -15px;
- }
+  .header__wrapper .cols__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 90%;
+    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 50px;
+  }
+  .header__wrapper .cols__container .left__col {
+    padding: 25px 0px;
+  }
+  .header__wrapper .cols__container .right__col nav ul {
+    flex-direction: row;
+    gap: 30px;
+  }
+  .header__wrapper .cols__container .right__col .photos {
+    height: 365px;
+    overflow: auto;
+    padding: 0 0 30px;
+  }
+  .timeline {
+    margin: 30px auto;
+  }
+  .timeline::after {
+    left: 31px;
+  }
+  .timelinecontainer {
+    width: 100%;
+    padding-left: 80px;
+    padding-right: 25px;
+  }
+  .text-box {
+    padding: 20px 30px;
+    background: white;
+    position: relative;
+    border-radius: 6px;
+    font-size: 13px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .text-box p {
+    margin-bottom: 10px;
+  }
+  .image-container {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin-top: 10px;
+    padding: 10px 10px;
+  }
+  .text-box .image-container img {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 6px;
+    position: static;
+    width: auto;
+    right: auto;
+    top: auto;
+    z-index: auto;
+  }
+  .right-container {
+    left: 0;
+  }
+  .left-container img,
+  .right-container img {
+    left: 10px;
+  }
+  .left-container-arrow,
+  .right-container-arrow {
+    border-right: 15px solid white;
+    border-left: 0;
+    left: -15px;
+  }
+  .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .button-container .lock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .button-container .lock form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .button-container .lock label,
+  .button-container .lock input,
+  .button-container .lock button {
+    margin-bottom: 10px;
+  }
+}
+@media screen and (max-width: 700px) {
+    #memories{
+      padding-top: 10px;
+      padding-right: 70px;
+      padding-bottom: 10px;
+      text-align: center;
+    }
+    .timeline {
+        position: absolute;
+        left: 0;
+        margin: 0;
+    }
+    .timeline::after {
+        left: 40px; /* timeline markers */
+    }
+    .timelinecontainer {
+        width: calc(100% - 20px); /* avoid overflow */
+        padding-left: 30px;
+    }
+    .text-box {
+        font-size: 13px;
+    }
+    .text-box small {
+        margin-bottom: 10px;
+    }
+    .left-container, .right-container {
+        left: 40px;
+        width: calc(100% - 40px);
+    }
+    .left-container img, .right-container img {
+        left: 10px;
+    }
+    .left-container-arrow, .right-container-arrow {
+        border-right: 15px solid #fff;
+        border-left: 0;
+        left: -15px;
+    }
 }
 
-/* @media (min-width: 1017px) {
- .header__wrapper .cols__container .left__col {
-   margin: 0;
-   margin-right: auto;
- }
- .header__wrapper .cols__container .right__col nav {
-   flex-direction: row;
- }
- .header__wrapper .cols__container .right__col nav button {
-   margin-top: 0;
- }
- .timeline {
- position: relative;
- max-width: 1200px;
- margin: 100px auto;
- padding-top: 0px;
-}
-.timeline::after {
- content: "";
- position: absolute;
- width: 6px;
- height: 100%; 
- background: black;
- top: 0; 
- left: 50%;
- margin-left: -3px;
- z-index: -1;
- animation: moveline 4.5s linear forwards;
-}
-.timelinecontainer {
- padding: 10px 50px;
- position: relative;
- width: 50%;
- animation: movedown 1s linear forwards;
- opacity: 0;
-}
-.text-box {
- padding: 20px 30px;
- background: #fff;
- position: relative;
- border-radius: 6px;
- font-size: 15px;
- display: flex;
- flex-direction: column;
- justify-content: center;
- align-items: center;
-}
-.text-box p {
- display: inline-block;
- margin: 15px;
-}
-.image-container {
- width: 100%;
- height: auto;
- display: flex;
- justify-content: center;
- align-items: center;
- overflow: hidden;
- margin-top: 10px;
- padding: 10px 10px;
-}
-.text-box .image-container img {
- max-width: 100%;
- max-height: 300px;
- object-fit: cover;
- border-radius: 6px;
- position: static;
- width: auto;
- right: auto;
- top: auto;
- z-index: auto;
-}
-.left-container {
- left: 0;
-}
-
-.right-container {
- left: 50%;
-}
-.left-container-arrow {
- height: 0;
- width: 0;
- position: absolute;
- top: 28px;
- z-index: 1;
- border-top: 15px solid transparent;
- border-bottom: 15px solid transparent;
- border-left: 15px solid white;
- right: -15px;
-}
-.right-container-arrow {
- height: 0;
- width: 0;
- position: absolute;
- top: 28px;
- z-index: 1;
- border-top: 15px solid transparent;
- border-bottom: 15px solid transparent;
- border-right: 15px solid white;
- left: -15px;
-} 
-
-} */
 
 </style>
 </head>
@@ -687,50 +647,69 @@ body.dark-mode {
 <body>
    <div class="shooting-star"><i class="fas fa-star"></i></div>
    <div class="header__wrapper">
-     <header></header>
+    <header style="background: url('<%= backgroundImage %>') no-repeat center/cover; min-height: calc(100px + 15vw);">
+      <!-- Header content -->
+    </header>
      <div class="cols__container">
        <div class="left__col">
          <div class="img__container">
-           <img src="profilepic.jpg" alt="Anna Smith" />
-           <button type="button" class="btn btn-outline-dark btn-sm m-3" onclick="location.href='/editProfile'">Edit</button>
+    
+          <img src="<%= profileImage %>" alt="Profile Image">
+         
+
+           <button type="button" class="btn btn-outline-dark btn-sm m-3" onclick="location.href='/editLanding'">Edit</button>
 
            <span></span>
           </div>
           
-          <h2>Welcome, <%= username %></h2>
+          <h2><%= username %></h2>
           <p><%= email %></p>
           
-          <button type="button" class="btn btn-primary">Follow</button>
+          
           
           <% if (capsules && capsules.length > 1) { %>
           <ul class="about">
-            <li><span>200</span><a href="/friends">Follower</a></li>
+            <li><span><%= friends.length %></span><a href="/friends">Friends</a></li>
             <li><span><%= capsules.length %></span>Time Capsules</li>
           </ul>
           <% } else if(capsules && capsules.length <= 1){ %>
             <ul class="about">
-              <li><span>200</span><a href="/friends">Follower</a></li>
+              <li><span><%= friends.length %></span><a href="/friends">Friends</a></li>
                 <li><span><%= capsules.length %></span>Time Capsule</li>
               </ul>
             <% } %>
 
           <div class="content">
             <p>
-              Lorem ipsum dolor sit amet, consectetuer adipiscing elit. Aliquam
-              erat volutpat. Morbi imperdiet, mauris ac auctor dictum, nisl
-              ligula egestas nulla.
+              <%= userbio %>
             </p>
 
             <ul>
-              <li><i class="fab fa-twitter"></i></li>
-              <i class="fab fa-pinterest"></i>
-              <i class="fab fa-facebook"></i>
-              <i class="fab fa-dribbble"></i>
+              <li>
+                <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-twitter"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://pinterest.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-pinterest"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://facebook.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-facebook"></i>
+                </a>
+              </li>
+              <li>
+                <a href="https://dribbble.com" target="_blank" rel="noopener noreferrer">
+                  <i class="fab fa-dribbble"></i>
+                </a>
+              </li>
             </ul>
           </div>
         </div>
         <div class="right__col">
-            <h2 style="padding-top: 30px; padding-left: 70px; text-align: center;"><em>My Memories</em></h2>
+            <h2 id="memories"><em>My Memories</em></h2>
           <div class="timeline">
             <% capsules.sort((a, b) => new Date(b.date) - new Date(a.date)); %>
 
@@ -758,17 +737,18 @@ body.dark-mode {
                         <% } %>
                       </div>
                       <div class="button-container">
-                        <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
+                        
                         <div class="lock">
-                            <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>">
+                            <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>" id="lockUnlock">
                                 <label for="lockDate"></label>
+                                <input type="hidden" value="<%- capsules[i].title %>" name="id" id="capsuleTitle">
                                 <% if (capsules[i].lock == false) { %> 
                                     <label for="lockDate">Lock until: </label>
                                     <input name="lockedUntil" type="date" name="lockDate" id="lockDate" placeholder="Lock Date" required>
-                                    <button type="submit" class="btn btn-outline-primary custom-btn ">Lock</button>
+                                    <button type="submit" id="lock" class="btn btn-outline-primary custom-btn ">Lock</button>
                                 <% } else { %>
                                   <p> Locked Until: <%= capsules[i].lockedUntil %></p>
-                                    <button type="submit" class="btn btn-outline-primary custom-btn " >Unlock</button>
+                                    <button type="submit" id="unlock" class="btn btn-outline-primary custom-btn " >Unlock</button>
                                 <% } %>
                             </form>
                         </div>
@@ -799,10 +779,11 @@ body.dark-mode {
                         <% } %>
                       </div>
                       <div class="button-container">
-                        <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
+                        
                         <div class="lock">
                             <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>">
                                 <label for="lockDate"></label>
+                                <input type="hidden" value="<%- capsules[i].title %>" name="id" id="capsuleTitle">
                                 <% if (capsules[i].lock == false) { %> 
                                     <label for="lockDate">Lock until: </label>
                                     <input name="lockedUntil" type="date" name="lockDate" id="lockDate" placeholder="Lock Date" required>
@@ -828,45 +809,5 @@ body.dark-mode {
       </div>
       </div>
     </div>
-    <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          const easterEgg = document.getElementById('darkModeToggle');
-          const shootingStar = document.querySelector('.shooting-star');
-      
-          // Function to show the shooting star
-          function showShootingStar() {
-              shootingStar.style.display = 'inline-block';
-          }
-      
-          // Function to hide the shooting star
-          function hideShootingStar() {
-              shootingStar.style.display = 'none';
-          }
-      
-          // Toggle dark mode
-          function toggleDarkMode() {
-              document.body.classList.toggle('dark-mode');
-          }
-      
-          // Show shooting star and toggle dark mode when hovering over the Easter egg container
-          easterEgg.addEventListener('mouseenter', function () {
-              showShootingStar();
-              toggleDarkMode();
-          });
-      
-          // Hide shooting star and toggle dark mode when mouse leaves the container
-          easterEgg.addEventListener('mouseleave', function () {
-              hideShootingStar();
-              toggleDarkMode();
-          });
-      });
-      </script>
-      <script>
-      document.addEventListener('DOMContentLoaded', function () {
-          const images = document.querySelectorAll('.timelinecontainer img');
-          images.forEach(img => {
-              console.log('Image src:', img.src);
-          });
-      });
-      </script>
-<%- include("templates/footer") %>
+        <script src="members.js"></script>
+

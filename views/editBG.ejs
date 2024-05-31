@@ -7,7 +7,7 @@
       href="https://unpkg.com/boxicons@2.0.9/css/boxicons.min.css"
       rel="stylesheet"
     />
-    <title>Edit Profile</title>
+    
     <style>
       @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap");
 
@@ -144,10 +144,10 @@
   <body>
     <% include("templates/header") %>
     <div class="container">
-      <h2 class="pt-4">Upload Profile Image</h2>
+      <h2 class="pt-4">Upload Background Image</h2>
       <form
         id="edit-profile-form"
-        action="/editProPic"
+        action="/editBackPic"
         method="post"
         enctype="multipart/form-data"
       >
@@ -207,7 +207,7 @@
         // Append the image file to the FormData object
         formData.append("image", imageInput.files[0]);
         try {
-          const response = await fetch("/editProPic", {
+          const response = await fetch("/editBackPic", {
             method: "POST",
             body: formData,
           });

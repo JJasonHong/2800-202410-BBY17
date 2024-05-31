@@ -8,17 +8,34 @@
   <title>Create Capsule</title>
   <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    /* Styles for the input div and preview images */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f8f9fa;
+    }
+
+    .contain {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    }
+
     .input-div {
       min-height: 200px;
-      border: 2px dotted black;
-      background-color: white;
+      border: 2px dotted #6c757d;
+      background-color: #e9ecef;
       position: relative;
-      width: 20%;
+      width: 100%;
+      transition: background-color 0.3s ease;
+    }
+
+    .input-div:hover {
+      background-color: #dee2e6;
     }
 
     .input-div p {
       margin: 0;
+      color: #6c757d;
     }
 
     .file {
@@ -75,85 +92,70 @@
       border: 2px solid rgba(0, 0, 0, 0.13);
       padding: 10px;
       background-color: white;
+      border-radius: 5px;
     }
 
-    #more-sections-btn {
-      width: 100%;
-      font-weight: bolder;
-      display: none;
+    .btn-outline-secondary {
+      font-weight: bold;
     }
 
-    #section-input-initial {
-      display: none;
+    .input-group .form-control,
+    .btn {
+      border-radius: 5px;
     }
   </style>
 </head>
 
 <body>
   <%- include("templates/header") %>
-  <div class="container mt-5">
-    <div class="row">
-      <div class="col">
-        <h2 class="mb-4">Create Capsule</h2>
-        <!-- Server message area to show upload success or failure -->
-        <div class="server-message mb-3"></div>
+  <div class="contain mt-5">
+    <h2 class="mb-4 text-center">Create Capsule</h2>
+    <!-- Server message area to show upload success or failure -->
+    <div class="server-message mb-3"></div>
 
-        <!-- Title, Date, and Capsule Caption Inputs -->
-        <div class="form-group">
-          <label for="title">Title</label>
-          <input type="text" id="title" name="title" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label for="date">Date</label>
-          <input type="date" id="date" name="date" class="form-control" required>
-        </div>
-        <div class="form-group">
-          <label for="capsule-caption">Capsule Caption</label>
-          <textarea id="capsule-caption" name="capsule-caption" class="form-control" rows="3"></textarea>
-        </div>
-
-        <!-- Drag & Drop / Browse File Input -->
-        <div>
-          <div class="input-group mt-4" id="section-input-initial">
-            <input type="text" class="form-control section-text" placeholder="Section title">
-            <div class="input-group-append">
-              <button class="btn btn-outline-secondary" type="button" onclick="removeSection(1)">X</button>
-            </div>
-          </div>
-          <div class="mt-4" id="add-sections-btn">
-            <button class="btn btn-outline-secondary" type="button" onclick="addSections()">Add Sections</button>
-          </div>
-          <div class="preview-box d-flex flex-wrap">
-            <div class="input-div d-flex flex-wrap justify-content-center align-items-center text-center" id="media-input-div-1">
-              <p>Drag & drop photos or videos here or <span class="text-primary font-weight-bold">Browse</span></p>
-              <input type="file" class="file" id="media-input-1" multiple="multiple" accept="image/jpeg, image/png, image/jpg, video/mp4, video/ogg, video/webm, video/mkv" required 
-                onchange="browseFileInput(this)" ondragover="dragFileInput(this)" ondrop="dropFileInput(this)"
-              />
-            </div>
-          </div>
-          <div id="sections-holder">
-          </div>
-          <button class="btn btn-outline-secondary" type="button" onclick="addSection()" id="more-sections-btn">+</button>
-        </div>
-
-        <!-- Upload Form -->
-        <form id="uploadForm" class="mt-4" enctype="multipart/form-data" action="/upload" method="POST">
-          <!-- 
-          <div class="d-flex justify-content-between align-items-center mb-2">
-            <h3>Preview</h3>
-          </div>
-          <div class="preview-box">
-            <div class="queued-div d-flex flex-wrap"></div>
-          </div>
-          -->
-          <button type="submit" class="btn btn-primary mt-3">Upload</button>
-        </form>
+    <!-- Title, Date, and Capsule Caption Inputs -->
+    <form id="uploadForm" class="mt-4" enctype="multipart/form-data" action="/upload" method="POST">
+      <div class="form-group">
+        <label for="title">Title</label>
+        <input type="text" id="title" name="title" class="form-control" required>
       </div>
-    </div>
-  </div>
+      <div class="form-group">
+        <label for="date">Date</label>
+        <input type="date" id="date" name="date" class="form-control" required>
+      </div>
+      <div class="form-group">
+        <label for="capsule-caption">Capsule Caption</label>
+        <textarea id="capsule-caption" name="capsule-caption" class="form-control" rows="3"></textarea>
+      </div>
 
+      <!-- Drag & Drop / Browse File Input -->
+      <div class="mt-4">
+        <div class="input-group mb-3" id="section-input-initial">
+          <input type="text" class="form-control section-text" placeholder="Section title">
+          <div class="input-group-append">
+            <button class="btn btn-outline-secondary" type="button" onclick="removeSection(1)">X</button>
+          </div>
+        </div>
+        <div id="add-sections-btn" class="text-center">
+          <button class="btn btn-outline-secondary" type="button" onclick="addSections()">Add Sections</button>
+        </div>
+        <div class="preview-box d-flex flex-wrap">
+          <div class="input-div d-flex flex-wrap justify-content-center align-items-center text-center" id="media-input-div-1">
+            <p>Drag & drop photos or videos here or <span class="text-primary font-weight-bold">Browse</span></p>
+            <input type="file" class="file" id="media-input-1" multiple accept="image/jpeg, image/png, image/jpg, video/mp4, video/ogg, video/webm, video/mkv" required
+              onchange="browseFileInput(this)" ondragover="dragFileInput(this)" ondrop="dropFileInput(this)" />
+          </div>
+        </div>
+        <div id="sections-holder"></div>
+        <button class="btn btn-outline-secondary" type="button" onclick="addSection()" id="more-sections-btn">+</button>
+      </div>
+
+      <!-- Upload Form -->
+      <button type="submit" class="btn btn-primary mt-4 btn-block">Upload</button>
+    </form>
+  </div>
+  
   <script>
-    // Store selected images and DOM elements
     let queuedImagesArray = [],
       imageOrdering = [],
       queuedDiv = document.querySelector('.queued-div'),
@@ -164,15 +166,14 @@
     function clearInputs() {
       let media = document.querySelectorAll(".media");
       media.forEach((elem) => {
-        elem.remove(); 
+        elem.remove();
       });
     }
 
-    // Function to display the selected images in the preview area
     function displayQueuedImages() {
-      clearInputs()
-      let mediaInput = 
+      clearInputs();
       queuedImagesArray.forEach((elem, index) => {
+        let media;
         if (elem.type.startsWith("image/")) {
           media = `<div class="media">
                       <img src="${URL.createObjectURL(elem)}" alt="image">
@@ -191,20 +192,16 @@
         }
         document.getElementById("media-input-div-" + imageOrdering[index]).insertAdjacentHTML("beforebegin", media);
       });
-      
-     // queuedDiv.innerHTML = media;
     }
 
-    // Function to remove an image from the queue
     function deleteQueuedImage(index) {
       queuedImagesArray.splice(index, 1);
       displayQueuedImages();
     }
 
-    // Event listener for file input change (when files are selected via browse)
     function browseFileInput(e) {
       let sectionID = parseInt(e.id.split("media-input-")[1]);
-      let input = document.querySelector("#"+e.id);
+      let input = document.querySelector("#" + e.id);
       const files = input.files;
       for (let i = 0; i < files.length; i++) {
         queuedImagesArray.push(files[i]);
@@ -213,81 +210,74 @@
       displayQueuedImages();
     }
 
-    // Event listeners for drag & drop functionality
     function dragFileInput(e) {
       e.preventDefault();
     }
 
     function dropFileInput(e) {
-      e.preventDefault(); // Prevent open the file in the browser
+      e.preventDefault();
       let sectionID = parseInt(e.id.split("media-input-")[1]);
-      const files = e.dataTransfer.files; // Get the files that were dropped into the inputDiv
-      for (let i = 0; i < files.length; i++) { // Loop through each dropped file
-        if (!files[i].type.match("image.*") && !files[i].type.match("video.*")) continue; // If the file is not an image or video, skip it and continue to the next file
-        // Check if the file name is not already in the queuedImagesArray
-        if (queuedImagesArray.every(elem=> elem.file.name !== files[i].name)) {
-          queuedImagesArray.push(files[i]); // If the file is unique, add it to the queuedImagesArray
+      const files = e.dataTransfer.files;
+      for (let i = 0; i < files.length; i++) {
+        if (!files[i].type.match("image.*") && !files[i].type.match("video.*")) continue;
+        if (queuedImagesArray.every(elem => elem.file.name !== files[i].name)) {
+          queuedImagesArray.push(files[i]);
           imageOrdering.push(sectionID);
         }
       }
       displayQueuedImages();
     }
 
-    // Event listener for form submission
     document.getElementById("uploadForm").addEventListener("submit", (e) => {
-  e.preventDefault();
-  const title = document.getElementById('title').value;
-  const date = document.getElementById('date').value;
-  const capsuleCaption = document.getElementById('capsule-caption').value;
-  const files = queuedImagesArray;
-  const sections = getSectionTexts();
-  if (!title || !date || files.length === 0) {
-    serverMessage.textContent = "All fields are required!";
-    serverMessage.classList.add('alert', 'alert-danger');
-    return;
-  }
-  const formData = new FormData();
-  formData.append('title', title);
-  formData.append('date', date);
-  formData.append('capsule-caption', capsuleCaption);
-  files.forEach((file, index) => {
-    formData.append('images', file);
-    const caption = document.querySelector(`textarea[name="caption_${index}"]`).value;
-    formData.append(`captions[]`, caption);
-    const ordering = imageOrdering[index];
-    formData.append('ordering[]', ordering);
-  });
-  sections.forEach((section) => {
-    formData.append('sections[]', section);
-  });
+      e.preventDefault();
+      const title = document.getElementById('title').value;
+      const date = document.getElementById('date').value;
+      const capsuleCaption = document.getElementById('capsule-caption').value;
+      const files = queuedImagesArray;
+      const sections = getSectionTexts();
+      if (!title || !date || files.length === 0) {
+        serverMessage.textContent = "All fields are required!";
+        serverMessage.classList.add('alert', 'alert-danger');
+        return;
+      }
+      const formData = new FormData();
+      formData.append('title', title);
+      formData.append('date', date);
+      formData.append('capsule-caption', capsuleCaption);
+      files.forEach((file, index) => {
+        formData.append('images', file);
+        const caption = document.querySelector(`textarea[name="caption_${index}"]`).value;
+        formData.append(`captions[]`, caption);
+        const ordering = imageOrdering[index];
+        formData.append('ordering[]', ordering);
+      });
+      sections.forEach((section) => {
+        formData.append('sections[]', section);
+      });
 
-  // Fetch API to send the form data
-  fetch('/upload', {
-    method: 'POST',
-    body: formData
-  })
-    .then(response => response.json())
-    .then(data => {
-      console.log(data);
-      serverMessage.textContent = data.message;
-      serverMessage.classList.remove('alert-danger');
-      serverMessage.classList.add('alert', 'alert-success');
-      queuedImagesArray = [];
-      displayQueuedImages();
-      document.getElementById('title').value = '';
-      document.getElementById('date').value = '';
-      document.getElementById('capsule-caption').value = '';
-    })
-    .catch(error => {
-      console.error('Error:', error);
-      // Display error message
-      serverMessage.textContent = 'Error uploading files';
-      serverMessage.classList.remove('alert-success');
-      serverMessage.classList.add('alert', 'alert-danger');
+      fetch('/upload', {
+        method: 'POST',
+        body: formData
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+          serverMessage.textContent = data.message;
+          serverMessage.classList.remove('alert-danger');
+          serverMessage.classList.add('alert', 'alert-success');
+          queuedImagesArray = [];
+          displayQueuedImages();
+          document.getElementById('title').value = '';
+          document.getElementById('date').value = '';
+          document.getElementById('capsule-caption').value = '';
+        })
+        .catch(error => {
+          console.error('Error:', error);
+          serverMessage.textContent = 'Error uploading files';
+          serverMessage.classList.remove('alert-success');
+          serverMessage.classList.add('alert', 'alert-danger');
+        });
     });
-});
-
-    //===== Sections-related =====
 
     let sectionCount = 0;
     const sectionsHolder = document.getElementById("sections-holder");
@@ -311,9 +301,8 @@
                     <div class="preview-box d-flex flex-wrap">
                       <div class="input-div d-flex justify-content-center align-items-center text-center" id=${"media-input-div-" + sectionCount}>
                         <p>Drag & drop photos or videos here or <span class="text-primary font-weight-bold">Browse</span></p>
-                        <input type="file" class="file" id=${"media-input-" + sectionCount} multiple="multiple" accept="image/jpeg, image/png, image/jpg, video/mp4, video/ogg, video/webm, video/mkv" required               
-                          onchange="browseFileInput(this)" ondragover="dragFileInput(this)" ondrop="dropFileInput(this)"
-                        />
+                        <input type="file" class="file" id=${"media-input-" + sectionCount} multiple accept="image/jpeg, image/png, image/jpg, video/mp4, video/ogg, video/webm, video/mkv" required
+                          onchange="browseFileInput(this)" ondragover="dragFileInput(this)" ondrop="dropFileInput(this)" />
                       </div>
                     </div>
                   </div>`;
@@ -338,7 +327,6 @@
       } else {
         let toRemove = document.getElementById("section-" + id);
         sectionsHolder.removeChild(toRemove);
-        
       }
     }
 
@@ -352,7 +340,7 @@
     }
 
   </script>
-      <%- include("templates/footer") %>
+  <%- include("templates/footer") %>
 </body>
 
 </html>
