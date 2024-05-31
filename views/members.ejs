@@ -508,86 +508,107 @@ body.dark-mode {
 /* Responsiveness */
 
 @media (min-width: 700px) {
- .header__wrapper .cols__container {
-   max-width: 1200px;
-   margin: 0 auto;
-   width: 90%;
-   justify-content: space-between;
-   display: grid;
-   grid-template-columns: 1fr 2fr;
-   gap: 50px;
- }
- .header__wrapper .cols__container .left__col {
-   padding: 25px 0px;
- }
- .header__wrapper .cols__container .right__col nav ul {
-   flex-direction: row;
-   gap: 30px;
- }
- .header__wrapper .cols__container .right__col .photos {
-   height: 365px;
-   overflow: auto;
-   padding: 0 0 30px;
- }
- .timeline {
-   margin: 30px auto;
- }
- .timeline::after {
-   left: 31px;
- }
- .timelinecontainer {
-   width: 100%;
-   padding-left: 80px;
-   padding-right: 25px;
- }
- .text-box {
-   padding: 20px 30px;
-   background: white;
-   position: relative;
-   border-radius: 6px;
-   font-size: 13px; 
-   display: flex;
-   flex-direction: column;
-   justify-content: center;
-   align-items: center;
- }
- .text-box p {
-   margin-bottom: 10px;
- }
- .image-container {
-   width: 100%;
-   height: auto;
-   display: flex;
-   justify-content: center;
-   align-items: center;
-   overflow: hidden;
-   margin-top: 10px;
-   padding: 10px 10px;
- }
- .text-box .image-container img {
-   max-width: 100%;
-   max-height: 300px;
-   object-fit: cover;
-   border-radius: 6px;
-   position: static;
-   width: auto;
-   right: auto;
-   top: auto;
-   z-index: auto;
- }
- .right-container {
-   left: 0;
- }
- .left-container img,
- .right-container img {
-   left: 10px;
- }
- .left-container-arrow,
- .right-container-arrow {
-   border-right: 15px solid white;
-   border-left: 0;
-   left: -15px;
- }
+  .header__wrapper .cols__container {
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 90%;
+    justify-content: space-between;
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 50px;
+  }
+  .header__wrapper .cols__container .left__col {
+    padding: 25px 0px;
+  }
+  .header__wrapper .cols__container .right__col nav ul {
+    flex-direction: row;
+    gap: 30px;
+  }
+  .header__wrapper .cols__container .right__col .photos {
+    height: 365px;
+    overflow: auto;
+    padding: 0 0 30px;
+  }
+  .timeline {
+    margin: 30px auto;
+  }
+  .timeline::after {
+    left: 31px;
+  }
+  .timelinecontainer {
+    width: 100%;
+    padding-left: 80px;
+    padding-right: 25px;
+  }
+  .text-box {
+    padding: 20px 30px;
+    background: white;
+    position: relative;
+    border-radius: 6px;
+    font-size: 13px; 
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+  .text-box p {
+    margin-bottom: 10px;
+  }
+  .image-container {
+    width: 100%;
+    height: auto;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden;
+    margin-top: 10px;
+    padding: 10px 10px;
+  }
+  .text-box .image-container img {
+    max-width: 100%;
+    max-height: 300px;
+    object-fit: cover;
+    border-radius: 6px;
+    position: static;
+    width: auto;
+    right: auto;
+    top: auto;
+    z-index: auto;
+  }
+  .right-container {
+    left: 0;
+  }
+  .left-container img,
+  .right-container img {
+    left: 10px;
+  }
+  .left-container-arrow,
+  .right-container-arrow {
+    border-right: 15px solid white;
+    border-left: 0;
+    left: -15px;
+  }
+  .button-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+  }
+  .button-container .lock {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .button-container .lock form {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .button-container .lock label,
+  .button-container .lock input,
+  .button-container .lock button {
+    margin-bottom: 10px;
+  }
 }
 @media screen and (max-width: 700px) {
     #memories{
@@ -760,7 +781,7 @@ body.dark-mode {
           
           <% if (capsules && capsules.length > 1) { %>
           <ul class="about">
-            <li><span><%= friends.length %></span><a href="/friends">Follower</a></li>
+            <li><span><%= friends.length %></span><a href="/friends">Friends</a></li>
             <li><span><%= capsules.length %></span>Time Capsules</li>
           </ul>
           <% } else if(capsules && capsules.length <= 1){ %>
@@ -869,7 +890,7 @@ body.dark-mode {
                         <% } %>
                       </div>
                       <div class="button-container">
-                        <a href="#!" class="btn btn-outline-primary custom-btn" ><i class="fas fa-heart"></i> Like</a>
+                        
                         <div class="lock">
                             <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>">
                                 <label for="lockDate"></label>
@@ -900,4 +921,4 @@ body.dark-mode {
       </div>
     </div>
         <script src="members.js"></script>
-<%- include("templates/footer") %>
+
