@@ -1,6 +1,7 @@
 
 
 <style>
+  /* css style referenced from https://www.youtube.com/watch?v=HrcpBtKe-Vg&t=22s&ab_channel=ProgrammerCloud*/
   @import url("https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap");
 body {
  width: 100%;
@@ -28,8 +29,6 @@ a {
 .header__wrapper header {
  width: 100%;
  height: fit-content;
- /* background: url("background.jpg") no-repeat center/ cover;
- min-height: calc(100px + 15vw); */
 }
 
 .header__wrapper .cols__container .left__col {
@@ -56,16 +55,7 @@ a {
  box-shadow: 1px 3px 12px rgba(0, 0, 0, 0.18);
  
 }
-/* .header__wrapper .cols__container .left__col .img__container span {
- position: absolute;
- background: #2afa6a;
- width: 16px;
- height: 16px;
- border-radius: 50%;
- bottom: 3px;
- right: 11px;
- border: 2px solid #fff;
-} */
+
 .header__wrapper .cols__container .left__col h2 {
  margin-top: 100px;
  font-weight: 600;
@@ -121,11 +111,11 @@ a {
  font-size: 1.3rem;
 }
 .header__wrapper .cols__container .content ul a {
-  color: inherit; /* Inherit color from parent element */
-        text-decoration: none; /* Remove underline */
-        font-size: 24px; /* Adjust size as needed */
-        margin-right: 10px; /* Space between icons */
-        transition: color 0.3s ease; /* Smooth color transition */
+  color: inherit; 
+  text-decoration: none; 
+  font-size: 24px; 
+  margin-right: 10px; 
+  transition: color 0.3s ease; 
 }
 .header__wrapper .cols__container .content ul a:hover {
   color: blue;
@@ -406,12 +396,12 @@ a {
 }
 .button-container {
     display: flex;
-    align-items: center; /* Optional: align items vertically in center */
+    align-items: center; /* vertically in center */
     gap: 5px;
 }
 
 .lock button{
-    margin-left: 10px; /* Optional: Add some space between the buttons */
+    margin-left: 10px; /* space between the buttons */
     margin-top: 11.75px;
 }
 
@@ -623,10 +613,10 @@ body.dark-mode {
         margin: 0;
     }
     .timeline::after {
-        left: 40px; /* Adjust as needed to align with your timeline markers */
+        left: 40px; /* timeline markers */
     }
     .timelinecontainer {
-        width: calc(100% - 20px); /* Adjust as needed to avoid overflow */
+        width: calc(100% - 20px); /* avoid overflow */
         padding-left: 30px;
     }
     .text-box {
@@ -648,109 +638,7 @@ body.dark-mode {
         left: -15px;
     }
 }
-/* @media (min-width: 1017px) {
- .header__wrapper .cols__container .left__col {
-   margin: 0;
-   margin-right: auto;
- }
- .header__wrapper .cols__container .right__col nav {
-   flex-direction: row;
- }
- .header__wrapper .cols__container .right__col nav button {
-   margin-top: 0;
- }
- .timeline {
- position: relative;
- max-width: 1200px;
- margin: 100px auto;
- padding-top: 0px;
-}
-.timeline::after {
- content: "";
- position: absolute;
- width: 6px;
- height: 100%; 
- background: black;
- top: 0; 
- left: 50%;
- margin-left: -3px;
- z-index: -1;
- animation: moveline 4.5s linear forwards;
-}
-.timelinecontainer {
- padding: 10px 50px;
- position: relative;
- width: 50%;
- animation: movedown 1s linear forwards;
- opacity: 0;
-}
-.text-box {
- padding: 20px 30px;
- background: #fff;
- position: relative;
- border-radius: 6px;
- font-size: 15px;
- display: flex;
- flex-direction: column;
- justify-content: center;
- align-items: center;
-}
-.text-box p {
- display: inline-block;
- margin: 15px;
-}
-.image-container {
- width: 100%;
- height: auto;
- display: flex;
- justify-content: center;
- align-items: center;
- overflow: hidden;
- margin-top: 10px;
- padding: 10px 10px;
-}
-.text-box .image-container img {
- max-width: 100%;
- max-height: 300px;
- object-fit: cover;
- border-radius: 6px;
- position: static;
- width: auto;
- right: auto;
- top: auto;
- z-index: auto;
-}
-.left-container {
- left: 0;
-}
 
-.right-container {
- left: 50%;
-}
-.left-container-arrow {
- height: 0;
- width: 0;
- position: absolute;
- top: 28px;
- z-index: 1;
- border-top: 15px solid transparent;
- border-bottom: 15px solid transparent;
- border-left: 15px solid white;
- right: -15px;
-}
-.right-container-arrow {
- height: 0;
- width: 0;
- position: absolute;
- top: 28px;
- z-index: 1;
- border-top: 15px solid transparent;
- border-bottom: 15px solid transparent;
- border-right: 15px solid white;
- left: -15px;
-} 
-
-} */
 
 </style>
 </head>
