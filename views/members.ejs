@@ -861,35 +861,13 @@ body.dark-mode {
               toggleDarkMode();
           });
       });
-      </script>
-      <script>
+
       document.addEventListener('DOMContentLoaded', function () {
           const images = document.querySelectorAll('.timelinecontainer img');
           images.forEach(img => {
               console.log('Image src:', img.src);
           });
       });
-      </script>
-      <script>
-        //lock capsule button
-        document.addEventListener('DOMContentLoaded', function () {
-          const capsule = document.getElementById('capsuleTitle').value;
-          const lockButton = document.getElementById('lock');
-
-          lockButton.addEventListener('click', function () {
-            alert('Capsule ' + capsule + ' locked!');
-          });
-
-        });
-
-        //unlock capsule button
-        document.addEventListener('DOMContentLoaded', function () {
-          const capsule = document.getElementById('capsuleTitle').value;
-          const unlockButton = document.getElementById('unlock');
-
-          unlockButton.addEventListener('click', function () {
-            alert('Capsule ' + capsule + ' unlocked!');
-          });
-        });
         </script>
+        <script src="members.js"></script>
 <%- include("templates/footer") %>
