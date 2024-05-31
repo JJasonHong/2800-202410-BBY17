@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>User Profile</title>
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.1/css/all.css">
+  <style>
+    /* Base styling */
+    body {
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      background-color: #fafafa;
+      margin: 0;
+      padding: 0;
+    }
+    
+    /* Header styling */
+    .header__wrapper {
+      background-color: #333;
+      color: #fff;
+      padding: 1rem;
+      text-align: center;
+    }
+    
+    .header__wrapper h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    
+    .cols__container {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 2rem 1rem;
+    }
+    
+    .left__col {
+      flex: 1;
+      max-width: 300px;
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    
+    .left__col .img__container {
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+    
+    .left__col img {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      margin-bottom: 1rem;
+      border: 5px solid #333;
+    }
+    
+    .left__col h2 {
+      margin-top: 0;
+      font-size: 22px;
+    }
+    
+    .left__col p {
+      color: #666;
+      font-size: 16px;
+    }
+    
+    .content {
+      flex: 2;
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      margin-bottom: 1rem;
+      width: 100%;
+    }
+    
+    .content p {
+      margin-top: 0;
+      font-size: 18px;
+    }
+    
+    .content ul {
+      list-style-type: none;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+    
+    .content ul li {
+      display: inline-block;
+    }
+    
+    .content ul li a {
+      color: #333;
+      text-decoration: none;
+      font-size: 1.5rem;
+    }
+    
+    .content ul li a:hover {
+      color: #666;
+    }
+    
+    #capsules {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    
+    .capsule {
+      background-color: #fff;
+      padding: 1rem;
+      border-radius: 12px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      overflow: hidden;
+      text-decoration: none;
+      color: inherit;
+      display: block;
+    }
+    
+    .capsule:hover {
+      transform: scale(1.04);
+      box-shadow: 0 0 25px rgba(0, 0, 0, 0.2);
+      text-decoration: none;
+    }
+    
+    .capsule ul {
+      list-style-type: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .capsule ul li {
+      margin-bottom: 0.5rem;
+      font-size: 20px;
+    }
+    
+    .capsule img {
+      width: 100%;
+      border-radius: 12px;
+      margin-top: 0.5rem;
+      transition: transform 0.3s ease;
+    }
+    
+    .capsule img:hover {
+      transform: scale(1.1);
+    }
+  </style>
+</head>
+<body>
+    
+<%- include("templates/header") %>
+
+  <div class="cols__container">
+    <div class="left__col">
+      <div class="img__container">
+        <img src="<%= profileImage %>" alt="User Image">
+      </div>
+      <h2 id="username"><%= username %></h2>
+      <p id="tagline"><%= email %></p>
+    </div>
+   
+  <div id="capsules">
+    <% for(let i=0; i < result.length; i++){ %>
+      <a href="/openCapsule?id=<%- result[i]._id %>" class="capsule">
+        <ul>
+          <li><b><%= result[i].title %></b></li>
+          <li><%= result[i].date %></li>
+          <li><img src="<%- result[i].images[0].path %>" alt="Capsule Image"></li>
+        </ul>
+      </a>
+    <% } %>
+  </div>
+  </div>
+
+<%- include("templates/footer") %>
+</body>
+</html>
