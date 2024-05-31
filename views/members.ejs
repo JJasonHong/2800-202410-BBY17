@@ -741,6 +741,7 @@ body.dark-mode {
                         <div class="lock">
                             <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>" id="lockUnlock">
                                 <label for="lockDate"></label>
+                                <input type="hidden" value="<%- capsules[i].title %>" name="id" id="capsuleTitle">
                                 <% if (capsules[i].lock == false) { %> 
                                     <label for="lockDate">Lock until: </label>
                                     <input name="lockedUntil" type="date" name="lockDate" id="lockDate" placeholder="Lock Date" required>

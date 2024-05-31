@@ -225,7 +225,9 @@ app.get("/nosql-injection", async (req, res) => {
 
   res.send(`<h1>Hello ${username}</h1>`);
 });
-
+/**
+ * I used the code of my web dev assignment-2
+ */
 app.post("/submitUser", async (req, res) => {
   const { name, email, password } = req.body;
 
