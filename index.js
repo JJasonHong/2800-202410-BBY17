@@ -795,10 +795,33 @@ app.post('/editAbout', uploadNone.none(), async (req, res) => {
 });
 
 
+app.get("/profile", async (req, res) => {
+  let friendId = req.query.id;
+  console.log("this is profile page:" + friendId);
 
+  try {
+    let objectId = new ObjectId(friendId);
 
+    let result = await capsuleCollection.find({ user_id: friendId })
+      .project({ _id: 1, title: 1, date: 1, images: 1 })
+      .toArray();
 
+    let userData = await userCollection.findOne({ _id: objectId }, { projection: { name: 1, email: 1, ProfileImage: 1, image: 1 } });
+    let username = userData ? userData.name : '';
+    let email = userData ? userData.email : '';
+    let profileImage = userData ? userData.ProfileImage : 'birthday.jpg';
+    let image = userData ? userData.image : 'background.jpg';
+    console.log(result);
+    console.log(username);
+    console.log(email);
+    console.log("Profile Image URL: ", profileImage);
 
+    res.render("profile", { result, username, email, profileImage, image });
+  } catch (err) {
+    console.error("Error fetching data:", err);
+    res.status(500).send("Error fetching data");
+  }
+});
 
 app.get("*", (req, res) => {
   res.status(404);
