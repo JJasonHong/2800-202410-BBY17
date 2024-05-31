@@ -648,109 +648,6 @@ body.dark-mode {
         left: -15px;
     }
 }
-/* @media (min-width: 1017px) {
- .header__wrapper .cols__container .left__col {
-   margin: 0;
-   margin-right: auto;
- }
- .header__wrapper .cols__container .right__col nav {
-   flex-direction: row;
- }
- .header__wrapper .cols__container .right__col nav button {
-   margin-top: 0;
- }
- .timeline {
- position: relative;
- max-width: 1200px;
- margin: 100px auto;
- padding-top: 0px;
-}
-.timeline::after {
- content: "";
- position: absolute;
- width: 6px;
- height: 100%; 
- background: black;
- top: 0; 
- left: 50%;
- margin-left: -3px;
- z-index: -1;
- animation: moveline 4.5s linear forwards;
-}
-.timelinecontainer {
- padding: 10px 50px;
- position: relative;
- width: 50%;
- animation: movedown 1s linear forwards;
- opacity: 0;
-}
-.text-box {
- padding: 20px 30px;
- background: #fff;
- position: relative;
- border-radius: 6px;
- font-size: 15px;
- display: flex;
- flex-direction: column;
- justify-content: center;
- align-items: center;
-}
-.text-box p {
- display: inline-block;
- margin: 15px;
-}
-.image-container {
- width: 100%;
- height: auto;
- display: flex;
- justify-content: center;
- align-items: center;
- overflow: hidden;
- margin-top: 10px;
- padding: 10px 10px;
-}
-.text-box .image-container img {
- max-width: 100%;
- max-height: 300px;
- object-fit: cover;
- border-radius: 6px;
- position: static;
- width: auto;
- right: auto;
- top: auto;
- z-index: auto;
-}
-.left-container {
- left: 0;
-}
-
-.right-container {
- left: 50%;
-}
-.left-container-arrow {
- height: 0;
- width: 0;
- position: absolute;
- top: 28px;
- z-index: 1;
- border-top: 15px solid transparent;
- border-bottom: 15px solid transparent;
- border-left: 15px solid white;
- right: -15px;
-}
-.right-container-arrow {
- height: 0;
- width: 0;
- position: absolute;
- top: 28px;
- z-index: 1;
- border-top: 15px solid transparent;
- border-bottom: 15px solid transparent;
- border-right: 15px solid white;
- left: -15px;
-} 
-
-} */
 
 </style>
 </head>
@@ -853,6 +750,7 @@ body.dark-mode {
                         <div class="lock">
                             <form method="post" action="/lockUnlockCapsule?id=<%- capsules[i]._id %>" id="lockUnlock">
                                 <label for="lockDate"></label>
+                                <input type="hidden" value="<%- capsules[i].title %>" name="id" id="capsuleTitle">
                                 <% if (capsules[i].lock == false) { %> 
                                     <label for="lockDate">Lock until: </label>
                                     <input name="lockedUntil" type="date" name="lockDate" id="lockDate" placeholder="Lock Date" required>
